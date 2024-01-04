@@ -36,11 +36,11 @@ class Entry:
     word: str
     pos: str
     senses: list[Sense]
-    aliases: Optional[list[str]] = None
+    aliases: Optional[set[str]] = None
 
     def __post_init__(self):
         if self.aliases is None:
-            self.aliases = []
+            self.aliases = set()
 
     @classmethod
     def from_dict(cls, id: int, data: dict[str, Any]):
@@ -71,6 +71,7 @@ class Entry:
                 }
                 for sense in self.senses
             ],
+            "aliases": list(self.aliases),
         }
 
 
@@ -94,12 +95,30 @@ class WikiRawStream:
                                 "redirect": form["word"],
                             }
                         )
+            elif "alt_of" in sense:
+                for alt in sense["alt_of"]:
+                    if "word" in alt:
+                        self.redirects.append(
+                            {
+                                "title": word,
+                                "redirect": alt["word"],
+                            }
+                        )
             elif "glosses" not in sense or not "examples" in sense:
                 continue
             else:
                 new_senses.append(sense)
 
         return new_senses
+
+    def forms_to_aliases(self, word: str, forms: list[dict[str, Any]]) -> None:
+        for form in forms:
+            self.redirects.append(
+                {
+                    "title": form["form"],
+                    "redirect": word,
+                }
+            )
 
     @staticmethod
     def is_language(entry: dict[str, Any], code: str = "en") -> bool:
@@ -174,6 +193,9 @@ class WikiRawStream:
                 if self.is_vulgar(entry):
                     continue
 
+                if "forms" in entry:
+                    self.forms_to_aliases(entry["word"], entry["forms"])
+
                 entry["senses"] = self.filter_senses(entry["word"], entry["senses"])
                 if not entry["senses"]:
                     continue
@@ -191,7 +213,7 @@ class WikiRawStream:
         for r in redirects.itertuples():
             if r.redirect in self.entries:
                 for entry in self.entries[r.redirect]:
-                    entry.aliases.append(r.title)
+                    entry.aliases.add(r.title)
 
         out_path = self.path.replace(".json", "-minimal.json")
         with open(out_path, "w", encoding="utf-8") as out_file:
