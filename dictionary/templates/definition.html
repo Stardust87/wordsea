@@ -1,0 +1,29 @@
+{% for entry in entries %}
+<div><span><b>{{ entry.word }}</b></span>
+    <span>(<i>{{ entry.pos }}</i>)</span>
+</div>
+
+<div>
+    <ol type="I">
+        {% for sense in entry.senses %}
+        <li>
+            <div>
+                <small>DEFINITION</small> <span>{{ sense.glosses[0] }}</span>
+                {% if sense.examples %}
+                <br />
+                <small>EXAMPLES</small>
+                <ul>
+                    {% for example in sense.examples %}
+                    <li>{{ example.text }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ol>
+</div>
+{% if not loop.last %}
+<hr />
+{% endif %}
+{% endfor %}
