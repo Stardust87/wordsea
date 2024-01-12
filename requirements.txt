@@ -1,3 +1,9 @@
+accelerate
+beautifulsoup4
+diffusers
 pandas
+peft
+sentencepiece
 tqdm
-fasttext
+torch
+transformers
