@@ -138,11 +138,13 @@ class WikiRawStream:
             return False
 
         letters = re.sub(r"[^A-Za-z\s\-\']+", "", entry["word"])
+        first_letter = entry["word"][0]
         return all(
             [
                 len(letters) >= 3,
                 len(letters) == len(entry["word"]),
-                entry["word"][0].isalnum(),
+                first_letter.isalnum(),
+                not first_letter.isupper(),
             ]
         )
 
@@ -233,7 +235,7 @@ class WikiRawStream:
 
 
 if __name__ == "__main__":
-    stream = WikiRawStream(path="data/raw-wiktextract-data.json")
-    # stream = WikiRawStream(path="/mnt/Sidra/wiktionary/raw-wiktextract-data.json")
+    # stream = WikiRawStream(path="data/raw-wiktextract-data.json")
+    stream = WikiRawStream(path="/mnt/Sidra/wiktionary/raw-wiktextract-data.json")
     stream.process()
     stream.export()
