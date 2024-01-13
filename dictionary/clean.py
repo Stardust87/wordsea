@@ -8,6 +8,10 @@ from typing import Any, Optional
 import pandas as pd
 from tqdm import tqdm
 
+with open("dictionary/stopwords.txt", encoding="utf-8") as stopwords:
+    STOPWORDS = stopwords.read().splitlines()
+STOPWORDS = {word: True for word in STOPWORDS}
+
 
 @dataclass
 class Example:
@@ -121,6 +125,10 @@ class WikiRawStream:
             )
 
     @staticmethod
+    def is_stopword(entry: dict[str, Any]) -> bool:
+        return entry["word"] in STOPWORDS
+
+    @staticmethod
     def is_language(entry: dict[str, Any], code: str = "en") -> bool:
         return entry["lang_code"] == code
 
@@ -190,6 +198,8 @@ class WikiRawStream:
                     continue
                 if not self.has_phonetics(entry):
                     continue
+                if self.is_stopword(entry):
+                    continue
                 if self.is_vulgar(entry):
                     continue
 
@@ -223,6 +233,7 @@ class WikiRawStream:
 
 
 if __name__ == "__main__":
-    stream = WikiRawStream(path="/mnt/Sidra/wiktionary/raw-wiktextract-data.json")
+    stream = WikiRawStream(path="data/raw-wiktextract-data.json")
+    # stream = WikiRawStream(path="/mnt/Sidra/wiktionary/raw-wiktextract-data.json")
     stream.process()
     stream.export()
