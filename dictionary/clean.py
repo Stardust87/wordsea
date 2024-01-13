@@ -30,7 +30,7 @@ class Example:
 
 @dataclass
 class Sense:
-    glosses: list[str]
+    gloss: str
     examples: list[Example]
 
 
@@ -54,7 +54,7 @@ class Entry:
             pos=data["pos"],
             senses=[
                 Sense(
-                    glosses=sense["glosses"],
+                    gloss=sense["glosses"][0],
                     examples=[
                         Example.from_dict(ex) for ex in sense.get("examples", [])
                     ],
@@ -70,7 +70,7 @@ class Entry:
             "pos": self.pos,
             "senses": [
                 {
-                    "glosses": sense.glosses,
+                    "gloss": sense.gloss,
                     "examples": [ex.__dict__ for ex in sense.examples],
                 }
                 for sense in self.senses
@@ -108,7 +108,7 @@ class WikiRawStream:
                                 "redirect": alt["word"],
                             }
                         )
-            elif "glosses" not in sense or not "examples" in sense:
+            elif "glosses" not in sense:
                 continue
             else:
                 new_senses.append(sense)
