@@ -13,6 +13,9 @@ with open("dictionary/stopwords.txt", encoding="utf-8") as stopwords:
 STOPWORDS = {word: True for word in STOPWORDS}
 
 
+SKIP_RAW_TAGS = ["obsolete", "archaic", "slang"]
+
+
 @dataclass
 class Example:
     text: str
@@ -99,6 +102,8 @@ class WikiRawStream:
                                 "redirect": form["word"],
                             }
                         )
+                continue
+
             elif "alt_of" in sense:
                 for alt in sense["alt_of"]:
                     if "word" in alt:
@@ -108,10 +113,24 @@ class WikiRawStream:
                                 "redirect": alt["word"],
                             }
                         )
+                continue
+
             elif "glosses" not in sense:
                 continue
-            else:
-                new_senses.append(sense)
+
+            elif "raw_glosses" in sense:
+                gloss_tag = re.search(r"\((.*?)\)", sense["raw_glosses"][0])
+                if gloss_tag:
+                    gloss_tag = gloss_tag.group(1)
+                    if "," in gloss_tag:
+                        gloss_tag = [tag.strip() for tag in gloss_tag.split(",")]
+                    else:
+                        gloss_tag = [gloss_tag]
+
+                    if any([tag in SKIP_RAW_TAGS for tag in gloss_tag]):
+                        continue
+
+            new_senses.append(sense)
 
         return new_senses
 
@@ -235,7 +254,7 @@ class WikiRawStream:
 
 
 if __name__ == "__main__":
-    # stream = WikiRawStream(path="data/raw-wiktextract-data.json")
-    stream = WikiRawStream(path="/mnt/Sidra/wiktionary/raw-wiktextract-data.json")
+    stream = WikiRawStream(path="data/raw-wiktextract-data.json")
+    # stream = WikiRawStream(path="/mnt/Sidra/wiktionary/raw-wiktextract-data.json")
     stream.process()
     stream.export()
