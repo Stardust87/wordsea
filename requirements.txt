@@ -1,9 +1,0 @@
-accelerate
-beautifulsoup4
-diffusers
-pandas
-peft
-sentencepiece
-tqdm
-torch
-transformers
