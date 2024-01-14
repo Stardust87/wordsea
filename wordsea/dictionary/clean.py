@@ -8,10 +8,6 @@ from typing import Any, Optional
 import pandas as pd
 from tqdm import tqdm
 
-with open("dictionary/stopwords.txt", encoding="utf-8") as stopwords:
-    STOPWORDS = stopwords.read().splitlines()
-STOPWORDS = {word: True for word in STOPWORDS}
-
 
 SKIP_RAW_TAGS = ["obsolete", "archaic", "slang"]
 
@@ -144,10 +140,6 @@ class WikiRawStream:
             )
 
     @staticmethod
-    def is_stopword(entry: dict[str, Any]) -> bool:
-        return entry["word"] in STOPWORDS
-
-    @staticmethod
     def is_language(entry: dict[str, Any], code: str = "en") -> bool:
         return entry["lang_code"] == code
 
@@ -187,7 +179,7 @@ class WikiRawStream:
         return "vulgar" in entry.get("tags", []) or "fuck" in entry["word"]
 
     def process(self):
-        out_path = self.path.replace(".json", "-clean.json")
+        out_path = self.path.replace(".json", "-filtered.json")
         out_file = open(out_path, "w", encoding="utf-8")
 
         with open(self.path, encoding="utf-8") as raw_file:
@@ -218,8 +210,6 @@ class WikiRawStream:
                 if not self.has_correct_word(entry):
                     continue
                 if not self.has_phonetics(entry):
-                    continue
-                if self.is_stopword(entry):
                     continue
                 if self.is_vulgar(entry):
                     continue
@@ -253,8 +243,16 @@ class WikiRawStream:
                     out_file.write(json.dumps(entry.to_dict()) + "\n")
 
 
-if __name__ == "__main__":
-    stream = WikiRawStream(path="data/raw-wiktextract-data.json")
-    # stream = WikiRawStream(path="/mnt/Sidra/wiktionary/raw-wiktextract-data.json")
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Clean the raw Wiktionary data.",
+        epilog="Download pre-extracted data from https://kaikki.org/dictionary/rawdata.html.",
+    )
+    parser.add_argument("path", type=str, help="path to raw Wiktionary data (JSON)")
+    args = parser.parse_args()
+
+    stream = WikiRawStream(path=args.path)
     stream.process()
     stream.export()
