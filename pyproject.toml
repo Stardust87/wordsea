@@ -25,4 +25,4 @@ description = "Expand your vocabulary with wordsea!"
 
 [project.scripts]
 wordsea = "wordsea:main"
-wordsea-clean = "wordsea.dictionary.clean:main"
+wordsea-clean = "wordsea.scripts.clean:main"
