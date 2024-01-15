@@ -4,6 +4,7 @@ from enum import Enum
 
 class Tools(str, Enum):
     CLEAN = "clean"
+    FIND = "find"
 
 
 def main():
@@ -15,6 +16,13 @@ def main():
             subprocess.run(
                 [
                     f"wordsea-{Tools.CLEAN.value}",
+                    *toolargs,
+                ]
+            )
+        case Tools.FIND:
+            subprocess.run(
+                [
+                    f"wordsea-{Tools.FIND.value}",
                     *toolargs,
                 ]
             )

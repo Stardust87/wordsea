@@ -1,21 +1,15 @@
-import argparse
 import logging
 import json
-import re
 from pathlib import Path
 
 import pandas as pd
-from jinja2 import Environment, FileSystemLoader
 from tqdm import tqdm
 
-import wordsea
 
 logging.basicConfig(
     format="%(levelname)s - %(message)s",
     level=logging.WARNING,
 )
-
-TEMPLATES_PATH = Path(wordsea.__file__).parent / "dictionary" / "templates"
 
 
 def find_words(
@@ -48,51 +42,3 @@ def find_words(
     }
 
     return found_words
-
-
-def render_definition(entries) -> str:
-    env = Environment(loader=FileSystemLoader(TEMPLATES_PATH))
-    template = env.get_template("definition.html")
-    return template.render(entries=entries)
-
-
-def render_prompt(word: str, definition: str) -> str:
-    env = Environment(loader=FileSystemLoader(TEMPLATES_PATH))
-    template = env.get_template("prompt.html")
-    return template.render(word=word, definition=definition)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("words", nargs="+", type=str, help="words to find")
-    parser.add_argument(
-        "-o", "--output", type=str, help="output path", default="artifacts"
-    )
-    parser.add_argument(
-        "-d",
-        "--dictionary",
-        type=str,
-        help="dictionary path",
-        default="/mnt/Sidra/wiktionary/debug-wiktextract-minimal.json",
-    )
-    args = parser.parse_args()
-
-    OUTPUT_PATH = Path(args.output)
-    DEF_PATH = OUTPUT_PATH / "definitions"
-    PROMPTS_PATH = OUTPUT_PATH / "prompts"
-    DEF_PATH.mkdir(parents=True, exist_ok=True)
-    PROMPTS_PATH.mkdir(parents=True, exist_ok=True)
-
-    entries = find_words(args.words, path=Path(args.dictionary))
-
-    for word, entry in entries.items():
-        html = render_definition(entry)
-        with open(DEF_PATH / f"{word}.html", "w") as f:
-            f.write(html)
-
-        html = re.sub(r"\s\s+", " ", html)
-        html = html.replace("\n", "")
-        prompt = render_prompt(word, html)
-
-        with open(PROMPTS_PATH / f"{word}.md", "w") as f:
-            f.write(prompt)
