@@ -239,6 +239,12 @@ class WikiRawStream:
 
         out_file.close()
 
+    def entry_info(self, entry: Entry) -> dict[str, Any]:
+        return {
+            "id": entry.id,
+            "word": entry.word,
+        }
+
     def export(self):
         redirects = pd.DataFrame(self.redirects)
         redirects = redirects.drop_duplicates(subset=["title"])
@@ -247,11 +253,16 @@ class WikiRawStream:
                 for entry in self.entries[r.redirect]:
                     entry.aliases.add(r.title)
 
+        info_records = []
         out_path = self.path.replace(".json", "-minimal.json")
         with open(out_path, "w", encoding="utf-8") as out_file:
             for entries in tqdm(self.entries.values(), desc="Exporting"):
                 for entry in entries:
                     out_file.write(json.dumps(entry.to_dict()) + "\n")
+                    info_records.append(self.entry_info(entry))
+
+        info = pd.DataFrame(info_records)
+        info.to_csv(out_path.replace(".json", "-info.csv"), index=False)
 
 
 def main():
