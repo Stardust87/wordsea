@@ -9,9 +9,6 @@ import pandas as pd
 from tqdm import tqdm
 
 
-SKIP_RAW_TAGS = ["obsolete", "archaic", "slang"]
-
-
 @dataclass
 class Example:
     text: str
@@ -30,6 +27,7 @@ class Example:
 @dataclass
 class Sense:
     gloss: str
+    raw_gloss: Optional[str]
     examples: list[Example]
 
 
@@ -54,6 +52,9 @@ class Entry:
             senses=[
                 Sense(
                     gloss=sense["glosses"][0],
+                    raw_gloss=sense["raw_glosses"][0]
+                    if "raw_glosses" in sense
+                    else None,
                     examples=[
                         Example.from_dict(ex) for ex in sense.get("examples", [])
                     ],
@@ -70,6 +71,7 @@ class Entry:
             "senses": [
                 {
                     "gloss": sense.gloss,
+                    "raw_gloss": sense.raw_gloss,
                     "examples": [ex.__dict__ for ex in sense.examples],
                 }
                 for sense in self.senses
@@ -115,16 +117,8 @@ class WikiRawStream:
                 continue
 
             elif "raw_glosses" in sense:
-                gloss_tag = re.search(r"\((.*?)\)", sense["raw_glosses"][0])
-                if gloss_tag:
-                    gloss_tag = gloss_tag.group(1)
-                    if "," in gloss_tag:
-                        gloss_tag = [tag.strip() for tag in gloss_tag.split(",")]
-                    else:
-                        gloss_tag = [gloss_tag]
-
-                    if any([tag in SKIP_RAW_TAGS for tag in gloss_tag]):
-                        continue
+                if self.has_raw_tag_to_skip(sense):
+                    continue
 
             new_senses.append(sense)
 
@@ -138,6 +132,23 @@ class WikiRawStream:
                     "redirect": word,
                 }
             )
+
+    @staticmethod
+    def has_raw_tag_to_skip(
+        sense: dict[str, Any], skip_raw_tags=["obsolete", "archaic", "slang"]
+    ) -> bool:
+        gloss_tag = re.search(r"\((.*?)\)", sense["raw_glosses"][0])
+        if gloss_tag:
+            gloss_tag = gloss_tag.group(1)
+            if "," in gloss_tag:
+                gloss_tag = [tag.strip() for tag in gloss_tag.split(",")]
+            else:
+                gloss_tag = [gloss_tag]
+
+            if any([tag in skip_raw_tags for tag in gloss_tag]):
+                return True
+
+        return False
 
     @staticmethod
     def is_language(entry: dict[str, Any], code: str = "en") -> bool:
