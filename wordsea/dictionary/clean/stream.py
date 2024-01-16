@@ -24,7 +24,7 @@ class WikiRawStream:
         self.n_valid = 0
 
     def filter_senses(self, word: str, senses: list[dict[str, Any]]):
-        new_senses = []
+        new_senses = {}
 
         for sense in senses:
             if "form_of" in sense:
@@ -56,9 +56,16 @@ class WikiRawStream:
                 if has_raw_tag_to_skip(sense):
                     continue
 
-            new_senses.append(sense)
+            gloss = sense["glosses"][0]
+            if not gloss in new_senses:
+                new_senses[gloss] = sense
+                if not "examples" in sense:
+                    new_senses[gloss]["examples"] = []
+            else:
+                if "examples" in sense:
+                    new_senses[gloss]["examples"].extend(sense["examples"])
 
-        return new_senses
+        return list(new_senses.values())
 
     def forms_to_aliases(self, word: str, forms: list[dict[str, Any]]) -> None:
         for form in forms:
