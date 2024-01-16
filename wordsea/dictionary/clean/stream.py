@@ -12,6 +12,7 @@ from wordsea.dictionary.clean.constraints import (
     is_language,
     is_redirect,
     is_vulgar,
+    starts_with_number,
 )
 from wordsea.dictionary.clean.entry import Entry
 
@@ -58,6 +59,8 @@ class WikiRawStream:
 
             gloss = sense["glosses"][0]
             if not gloss in new_senses:
+                if starts_with_number(gloss):
+                    continue
                 new_senses[gloss] = sense
                 if not "examples" in sense:
                     new_senses[gloss]["examples"] = []

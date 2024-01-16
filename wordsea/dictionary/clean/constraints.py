@@ -2,6 +2,11 @@ import re
 from typing import Any
 
 
+def starts_with_number(gloss: str) -> bool:
+    pattern = r"^[0-9][^-]"
+    return bool(re.match(pattern, gloss))
+
+
 def has_raw_tag_to_skip(
     sense: dict[str, Any], skip_raw_tags=["obsolete", "archaic", "slang"]
 ) -> bool:
@@ -37,6 +42,9 @@ def has_correct_word(entry: dict[str, Any]) -> bool:
             not first_letter.isupper(),
         ]
     )
+
+
+import re
 
 
 def is_redirect(entry: dict[str, Any]) -> bool:
