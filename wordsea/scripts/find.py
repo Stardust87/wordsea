@@ -25,7 +25,7 @@ def main():
         "--dictionary",
         type=str,
         help="dictionary path",
-        default="/mnt/Sidra/wiktionary/debug-wiktextract-minimal.json",
+        default="/mnt/Sidra/wiktionary/raw-wiktextract-data-minimal.json",
     )
     args = parser.parse_args()
 

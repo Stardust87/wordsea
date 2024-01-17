@@ -15,6 +15,7 @@ logging.basicConfig(
 def find_words(
     words: list[str],
     path: Path,
+    silent: bool = False,
 ):
     info_path = path.parent / (path.stem + "-info.csv")
     info = pd.read_csv(info_path)
@@ -30,7 +31,7 @@ def find_words(
 
     matched = []
     with open(path, encoding="utf-8") as f:
-        for idx, line in enumerate(tqdm(f)):
+        for idx, line in enumerate(tqdm(f, disable=silent)):
             if idx == line_indices[0]:
                 matched.append(line)
                 line_indices.pop(0)
