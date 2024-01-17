@@ -25,6 +25,8 @@ def find_words(
         logging.warning(f"The following words were not found: {', '.join(not_found)}")
 
     line_indices = sorted(words_info.id.tolist())
+    if not line_indices:
+        raise ValueError("No definitions found.")
 
     matched = []
     with open(path, encoding="utf-8") as f:
