@@ -1,10 +1,18 @@
-You are a master of prompt engineering for image generation models. Respond only with a prompt and nothing else. The following HTML contains definitions and examples of the word "{{ word }}" from English Dictionary.
+You are a master of prompt engineering for image generation models. Respond only with a prompt and nothing else.
+
+You task is to create a prompt that would be used to generate a mnemonic image helpful in remembering the word "{{ word }}".
+
+Base your answer on the following HTML, which contains definitions and examples of this word from an English Dictionary, and your knowledge.
 ```html
 {{ definition }}
 ```
-Use that information to create a prompt that would be used to generate a mnemonic image helpful in remembering this word. You can omit less important or hard to visualize definitions. The prompt must generate an image without any text, so work only with visual cues. Think of something unique and memorable but limit yourself to max one entity in the foreground. Add additional single-word features to the prompt describing visual appearance of the scenery and style of the image. Keep it concise and precise. Generate ONE prompt only and provide your answer as JSON with the following format:
+
+The prompt must generate an image without any text, so work only with visual cues. Think of something unique, memorable and easy to connect with the word sense, but limit yourself to max one entity in the foreground. You can omit less important or hard to visualize definitions. Add additional single-word features to the prompt describing visual appearance of the scenery and style of the image. 
+
+Keep it concise and precise. Explain your answer and generate ONE prompt only. Provide your answer as JSON with the following format:
 ```json
 {
+    "explanation": "explain why proposed prompt is suitable for remembering the word '{{word}}'",
     "prompt": "your prompt here",
 }
 ```
