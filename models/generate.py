@@ -42,6 +42,8 @@ def get_pipeline(model: str):
 
 
 if __name__ == "__main__":
+    from pathlib import Path
+
     parser = argparse.ArgumentParser()
     parser.add_argument("word", type=str)
     parser.add_argument(
@@ -67,5 +69,6 @@ if __name__ == "__main__":
         num_images_per_prompt=2,
     ).images
 
+    Path(f"artifacts/images/{args.model}").mkdir(exist_ok=True, parents=True)
     for i, img in enumerate(images):
-        img.save(f"artifacts/words/{args.word}/{args.model}_{i}.png")
+        img.save(f"artifacts/images/{args.model}/{args.word}_{i}.png")
