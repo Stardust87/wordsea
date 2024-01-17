@@ -7,6 +7,15 @@ def starts_with_number(gloss: str) -> bool:
     return bool(re.match(pattern, gloss))
 
 
+def filter_nonaplha_examples(examples: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    pattern = r"^\W+$"
+    new_examples = []
+    for example in examples:
+        if not re.match(pattern, example["text"]):
+            new_examples.append(example)
+    return new_examples
+
+
 def has_raw_tag_to_skip(
     sense: dict[str, Any], skip_raw_tags=["obsolete", "archaic", "slang"]
 ) -> bool:

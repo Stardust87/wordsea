@@ -6,6 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from wordsea.dictionary.clean.constraints import (
+    filter_nonaplha_examples,
     has_correct_word,
     has_phonetics,
     has_raw_tag_to_skip,
@@ -58,15 +59,20 @@ class WikiRawStream:
                     continue
 
             gloss = sense["glosses"][0]
+
             if not gloss in new_senses:
                 if starts_with_number(gloss):
                     continue
+                if "examples" in sense:
+                    sense["examples"] = filter_nonaplha_examples(sense["examples"])
+                else:
+                    sense["examples"] = []
                 new_senses[gloss] = sense
-                if not "examples" in sense:
-                    new_senses[gloss]["examples"] = []
             else:
                 if "examples" in sense:
-                    new_senses[gloss]["examples"].extend(sense["examples"])
+                    new_senses[gloss]["examples"].extend(
+                        filter_nonaplha_examples(sense["examples"])
+                    )
 
         return list(new_senses.values())
 
