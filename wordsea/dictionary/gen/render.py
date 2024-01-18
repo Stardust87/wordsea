@@ -2,11 +2,24 @@ import re
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
-from jsonschema import validate, ValidationError
+from jsonschema import ValidationError, validate
 
 import wordsea
 
 TEMPLATES_PATH = Path(wordsea.__file__).parent / "dictionary" / "templates"
+
+
+def parse_input_words(input_words: list[str]) -> list[str]:
+    complete_words_list = []
+    for word in input_words:
+        if Path(word).exists():
+            with open(word) as f:
+                words = [word for word in f.read().splitlines() if word]
+                complete_words_list.extend(words)
+        else:
+            complete_words_list.append(word)
+
+    return list(set(complete_words_list))
 
 
 def render_definition(entries) -> str:

@@ -7,12 +7,9 @@ from pathlib import Path
 from tqdm import tqdm
 
 from wordsea.dictionary import find_words
-from wordsea.dictionary.gen import (
-    LlamaCppAPI,
-    is_response_correct,
-    render_definition,
-    render_prompt,
-)
+from wordsea.dictionary.gen import (LlamaCppAPI, is_response_correct,
+                                    parse_input_words, render_definition,
+                                    render_prompt)
 
 logging.basicConfig(
     format="%(levelname)s - %(message)s",
@@ -42,16 +39,7 @@ def main():
     if not api.health():
         raise RuntimeError("API is not healthy")
 
-    complete_words_list = []
-    for word in args.words:
-        if Path(word).exists():
-            with open(word) as f:
-                words = [word for word in f.read().splitlines() if word]
-                complete_words_list.extend(words)
-        else:
-            complete_words_list.append(word)
-
-    complete_words_list = list(set(complete_words_list))
+    complete_words_list = parse_input_words(args.words)
 
     entries = find_words(complete_words_list, path=Path(args.dictionary), silent=True)
 
@@ -76,7 +64,3 @@ def main():
 
         with open(LOGS_DIR / f"{word}.json", "w") as f:
             f.write(json.dumps(answer, indent=2))
-
-
-if __name__ == "__main__":
-    main()

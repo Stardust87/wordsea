@@ -5,6 +5,8 @@ from enum import Enum
 class Tools(str, Enum):
     CLEAN = "clean"
     FIND = "find"
+    GENERATE = "generate"
+    IMAGINE = "imagine"
 
 
 def main():
@@ -23,6 +25,20 @@ def main():
             subprocess.run(
                 [
                     f"wordsea-{Tools.FIND.value}",
+                    *toolargs,
+                ]
+            )
+        case Tools.GENERATE:
+            subprocess.run(
+                [
+                    f"wordsea-{Tools.GENERATE.value}",
+                    *toolargs,
+                ]
+            )
+        case Tools.IMAGINE:
+            subprocess.run(
+                [
+                    f"wordsea-{Tools.IMAGINE.value}",
                     *toolargs,
                 ]
             )

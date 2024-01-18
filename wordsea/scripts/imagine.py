@@ -40,7 +40,3 @@ def main():
 
         for i, img in enumerate(images):
             img.save(output_path / f"{word}_{i}.png")
-
-
-if __name__ == "__main__":
-    main()
