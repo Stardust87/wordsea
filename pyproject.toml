@@ -13,6 +13,7 @@ dependencies = [
     "accelerate",
     "beautifulsoup4",
     "diffusers",
+    "jsonschema",
     "pandas",
     "peft",
     "sentencepiece",

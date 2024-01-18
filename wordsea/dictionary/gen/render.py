@@ -21,3 +21,24 @@ def render_prompt(word: str, definition: str) -> str:
     env = Environment(loader=FileSystemLoader(TEMPLATES_PATH))
     template = env.get_template("prompt.html")
     return template.render(word=word, definition=definition)
+
+
+from jsonschema import validate
+
+
+def correct_response(response: str) -> bool:
+    schema = {
+        "type": "object",
+        "properties": {
+            "explanation": {"type": "string"},
+            "prompt": {"type": "string"},
+        },
+        "required": ["explanation", "prompt"],
+        "additionalProperties": False,
+    }
+    try:
+        validate(instance=response, schema=schema)
+    except Exception:
+        return False
+    else:
+        return True
