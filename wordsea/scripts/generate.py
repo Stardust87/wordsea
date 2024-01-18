@@ -1,13 +1,18 @@
 import argparse
 import json
 import logging
+import os
 from pathlib import Path
 
 from tqdm import tqdm
 
 from wordsea.dictionary import find_words
-from wordsea.dictionary.gen import (LlamaCppAPI, correct_response,
-                                    render_definition, render_prompt)
+from wordsea.dictionary.gen import (
+    LlamaCppAPI,
+    correct_response,
+    render_definition,
+    render_prompt,
+)
 
 logging.basicConfig(
     format="%(levelname)s - %(message)s",
@@ -32,8 +37,8 @@ def main():
     )
     args = parser.parse_args()
 
-    # api = LlamaCppAPI(url="http://localhost:8080")
-    api = LlamaCppAPI(url="http://pop-os.local:8080")
+    API_URL = os.environ.get("API_URL", "http://localhost:8080")
+    api = LlamaCppAPI(url=API_URL)
     if not api.health():
         raise RuntimeError("API is not healthy")
 
