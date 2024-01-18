@@ -6,12 +6,8 @@ from pathlib import Path
 from tqdm import tqdm
 
 from wordsea.dictionary import find_words
-from wordsea.dictionary.gen import (
-    LlamaCppAPI,
-    correct_response,
-    render_definition,
-    render_prompt,
-)
+from wordsea.dictionary.gen import (LlamaCppAPI, correct_response,
+                                    render_definition, render_prompt)
 
 logging.basicConfig(
     format="%(levelname)s - %(message)s",

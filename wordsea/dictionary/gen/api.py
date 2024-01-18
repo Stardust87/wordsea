@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass, field
 from typing import Any
+
 import requests
 
 JSON_GRAMMAR = r"""root   ::= object

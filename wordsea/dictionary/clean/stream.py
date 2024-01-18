@@ -5,16 +5,13 @@ from typing import Any
 import pandas as pd
 from tqdm import tqdm
 
-from wordsea.dictionary.clean.constraints import (
-    filter_nonaplha_examples,
-    has_correct_word,
-    has_phonetics,
-    has_raw_tag_to_skip,
-    is_language,
-    is_redirect,
-    is_vulgar,
-    starts_with_number,
-)
+from wordsea.dictionary.clean.constraints import (filter_nonaplha_examples,
+                                                  has_correct_word,
+                                                  has_phonetics,
+                                                  has_raw_tag_to_skip,
+                                                  is_language, is_redirect,
+                                                  is_vulgar,
+                                                  starts_with_number)
 from wordsea.dictionary.clean.entry import Entry
 
 

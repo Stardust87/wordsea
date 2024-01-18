@@ -1,10 +1,9 @@
-import logging
 import json
+import logging
 from pathlib import Path
 
 import pandas as pd
 from tqdm import tqdm
-
 
 logging.basicConfig(
     format="%(levelname)s - %(message)s",
