@@ -1,9 +1,9 @@
 from .api import LlamaCppAPI
 from .pipelines import get_pipeline
-from .render import correct_response, render_definition, render_prompt
+from .render import is_response_correct, render_definition, render_prompt
 
 __all__ = [
-    "correct_response",
+    "is_response_correct",
     "get_pipeline",
     "render_definition",
     "render_prompt",

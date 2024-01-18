@@ -30,7 +30,6 @@ def main():
 
         images = pipe(
             prompt,
-            num_inference_steps=10,
             num_inference_steps=45,
             generator=generator,
             guidance_scale=4.5,

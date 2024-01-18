@@ -9,7 +9,7 @@ from tqdm import tqdm
 from wordsea.dictionary import find_words
 from wordsea.dictionary.gen import (
     LlamaCppAPI,
-    correct_response,
+    is_response_correct,
     render_definition,
     render_prompt,
 )
@@ -46,11 +46,13 @@ def main():
     for word in args.words:
         if Path(word).exists():
             with open(word) as f:
-                complete_words_list.extend(f.read().splitlines())
+                words = [word for word in f.read().splitlines() if word]
+                complete_words_list.extend(words)
         else:
             complete_words_list.append(word)
 
     complete_words_list = list(set(complete_words_list))
+
     entries = find_words(complete_words_list, path=Path(args.dictionary), silent=True)
 
     for word, entry in tqdm(
@@ -61,8 +63,7 @@ def main():
         res = api.generate(prompt)
         answer = json.loads(res["content"])
 
-        is_correct = correct_response(answer)
-        if not is_correct:
+        if not is_response_correct(answer):
             logging.error(
                 f"For following word: `{word}` response was not correct and will be skipped. Response: `{answer}`"
             )

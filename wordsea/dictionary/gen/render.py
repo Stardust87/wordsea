@@ -2,6 +2,7 @@ import re
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
+from jsonschema import validate, ValidationError
 
 import wordsea
 
@@ -23,10 +24,7 @@ def render_prompt(word: str, definition: str) -> str:
     return template.render(word=word, definition=definition)
 
 
-from jsonschema import validate
-
-
-def correct_response(response: str) -> bool:
+def is_response_correct(response: str) -> bool:
     schema = {
         "type": "object",
         "properties": {
@@ -38,7 +36,7 @@ def correct_response(response: str) -> bool:
     }
     try:
         validate(instance=response, schema=schema)
-    except Exception:
+    except ValidationError:
         return False
     else:
         return True
