@@ -1,7 +1,7 @@
 from wordsea.dictionary.clean import WikiRawStream
 
 
-def main():
+def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(

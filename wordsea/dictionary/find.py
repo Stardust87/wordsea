@@ -1,10 +1,9 @@
-import logging
 import json
+import logging
 from pathlib import Path
 
 import pandas as pd
 from tqdm import tqdm
-
 
 logging.basicConfig(
     format="%(levelname)s - %(message)s",
@@ -16,9 +15,8 @@ def find_words(
     words: list[str],
     path: Path,
     silent: bool = False,
-):
-    info_path = path.parent / (path.stem + "-info.csv")
-    info = pd.read_csv(info_path)
+) -> dict[str, list[dict]]:
+    info = pd.read_csv(path.with_suffix(".csv"))
 
     words_info = info[info["word"].isin(words)]
     not_found = set(words) - set(words_info.word.unique().tolist())
@@ -30,7 +28,7 @@ def find_words(
         raise ValueError("No definitions found.")
 
     matched = []
-    with open(path, encoding="utf-8") as f:
+    with path.open(encoding="utf-8") as f:
         for idx, line in enumerate(tqdm(f, disable=silent)):
             if idx == line_indices[0]:
                 matched.append(line)

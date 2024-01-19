@@ -13,12 +13,16 @@ dependencies = [
     "accelerate",
     "beautifulsoup4",
     "diffusers",
+    "jinja2",
+    "jsonschema",
     "pandas",
     "peft",
+    "requests",
     "sentencepiece",
     "tqdm",
     "torch",
     "transformers",
+    "types-requests",
 ]
 requires-python = ">=3.10"
 description = "Expand your vocabulary with wordsea!"
@@ -27,3 +31,24 @@ description = "Expand your vocabulary with wordsea!"
 wordsea = "wordsea:main"
 wordsea-clean = "wordsea.scripts.clean:main"
 wordsea-find = "wordsea.scripts.find:main"
+wordsea-generate = "wordsea.scripts.generate:main"
+wordsea-imagine = "wordsea.scripts.imagine:main"
+
+[tool.black]
+line-length = 88
+include_trailing_comma = true
+
+[tool.isort]
+profile = 'black'
+
+[tool.mypy]
+disallow_untyped_calls = false
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+show_error_codes = true
+enable_error_code = ["ignore-without-code"]
+ignore_missing_imports = true
+strict_optional = false
+warn_return_any = false
+allow_redefinition = true
