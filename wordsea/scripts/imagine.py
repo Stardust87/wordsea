@@ -15,16 +15,19 @@ def main() -> None:
         type=str,
         help="words to find - every entity can be either a word or a path to a file with words separated by newlines",
     )
-    parser.add_argument("-m", "--model", type=str, default="pixart")
+    parser.add_argument("-m", "--model", type=str, default="playground")
+    parser.add_argument("-p", "--prompts", type=str, default="mixtral")
     parser.add_argument("-s", "--seed", type=int, default=42)
 
     args = parser.parse_args()
-    images_path = LOG_DIR / "images" / args.model
+    images_path = LOG_DIR / "images" / f"{args.prompts}-{args.model}"
     images_path.mkdir(exist_ok=True, parents=True)
 
     words = parse_input_words(args.words)
     words_paths = [
-        path for path in (LOG_DIR / "prompts").glob("*.json") if path.stem in words
+        path
+        for path in (LOG_DIR / "prompts" / args.prompts).glob("*.json")
+        if path.stem in words
     ]
     words_paths = sorted(words_paths, key=lambda p: p.stem)
 

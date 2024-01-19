@@ -1,6 +1,5 @@
 import argparse
 import json
-import logging
 from pathlib import Path
 
 from tqdm import tqdm
@@ -9,15 +8,9 @@ from wordsea import LLAMACPP_URL, LOG_DIR, MINDICT_FILE
 from wordsea.dictionary import find_words
 from wordsea.dictionary.gen import (
     LlamaCppAPI,
-    is_response_correct,
     parse_input_words,
     render_definition,
     render_prompt,
-)
-
-logging.basicConfig(
-    format="%(levelname)s - %(message)s",
-    level=logging.ERROR,
 )
 
 
@@ -29,6 +22,7 @@ def main() -> None:
         type=str,
         help="words to find - every entity can be either a word or a path to a file with words separated by newlines",
     )
+    parser.add_argument("-m", "--model", type=str, default="mixtral")
     parser.add_argument(
         "-d",
         "--dictionary",
@@ -37,8 +31,10 @@ def main() -> None:
         default=MINDICT_FILE,
     )
     args = parser.parse_args()
+    prompts_path = LOG_DIR / "prompts" / args.model
+    prompts_path.mkdir(exist_ok=True)
 
-    api = LlamaCppAPI(url=LLAMACPP_URL)
+    api = LlamaCppAPI(url=LLAMACPP_URL, model=args.model)
     if not api.health():
         raise RuntimeError("API is not healthy")
 
@@ -50,19 +46,10 @@ def main() -> None:
     ):
         html = render_definition(entry)
         prompt = render_prompt(word, html)
-        res = api.generate(prompt)
-        answer = json.loads(res["content"])
 
-        if not is_response_correct(answer):
-            logging.error(
-                f"For following word: `{word}` response was not correct and will be skipped. Response: `{answer}`"
-            )
+        answer = api.generate(word, prompt)
+        if answer is None:
             continue
-
-        answer["word"] = word
-
-        prompts_path = LOG_DIR / "prompts"
-        prompts_path.mkdir(exist_ok=True)
 
         with (prompts_path / f"{word}.json").open("w") as f:
             f.write(json.dumps(answer, indent=2))

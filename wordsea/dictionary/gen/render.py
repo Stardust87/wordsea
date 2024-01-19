@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
-from jsonschema import ValidationError, validate
 
 import wordsea
 
@@ -36,21 +35,3 @@ def render_prompt(word: str, definition: str) -> str:
     env = Environment(loader=FileSystemLoader(TEMPLATES_PATH))
     template = env.get_template("prompt.html")
     return template.render(word=word, definition=definition)
-
-
-def is_response_correct(response: str) -> bool:
-    schema = {
-        "type": "object",
-        "properties": {
-            "explanation": {"type": "string"},
-            "prompt": {"type": "string"},
-        },
-        "required": ["explanation", "prompt"],
-        "additionalProperties": False,
-    }
-    try:
-        validate(instance=response, schema=schema)
-    except ValidationError:
-        return False
-    else:
-        return True
