@@ -6,7 +6,7 @@ from wordsea.dictionary import find_words
 from wordsea.dictionary.gen import render_definition, render_prompt
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Find words in JSON dictionary cleaned using `wordsea clean`.",
     )
@@ -41,9 +41,9 @@ def main():
 
         for word, entry in entries.items():
             html = render_definition(entry)
-            with open(DEF_PATH / f"{word}.html", "w") as f:
+            with (DEF_PATH / f"{word}.html").open("w") as f:
                 f.write(html)
 
             prompt = render_prompt(word, html)
-            with open(PROMPTS_PATH / f"{word}.md", "w") as f:
+            with (PROMPTS_PATH / f"{word}.md").open("w") as f:
                 f.write(prompt)

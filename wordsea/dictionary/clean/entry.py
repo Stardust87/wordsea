@@ -9,7 +9,7 @@ class Example:
     type: Optional[str] = None
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]):
+    def from_dict(cls, data: dict[str, Any]) -> "Example":
         return cls(
             text=data["text"],
             ref=data.get("ref", None),
@@ -32,12 +32,12 @@ class Entry:
     senses: list[Sense]
     aliases: Optional[set[str]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.aliases is None:
             self.aliases = set()
 
     @classmethod
-    def from_dict(cls, id: int, data: dict[str, Any]):
+    def from_dict(cls, id: int, data: dict[str, Any]) -> "Entry":
         return cls(
             id=id,
             word=data["word"],
@@ -56,7 +56,7 @@ class Entry:
             ],
         )
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "word": self.word,

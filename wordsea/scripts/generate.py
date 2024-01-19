@@ -7,9 +7,13 @@ from pathlib import Path
 from tqdm import tqdm
 
 from wordsea.dictionary import find_words
-from wordsea.dictionary.gen import (LlamaCppAPI, is_response_correct,
-                                    parse_input_words, render_definition,
-                                    render_prompt)
+from wordsea.dictionary.gen import (
+    LlamaCppAPI,
+    is_response_correct,
+    parse_input_words,
+    render_definition,
+    render_prompt,
+)
 
 logging.basicConfig(
     format="%(levelname)s - %(message)s",
@@ -17,7 +21,7 @@ logging.basicConfig(
 )
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "words",
@@ -62,5 +66,5 @@ def main():
         LOGS_DIR = Path("artifacts/logs")
         LOGS_DIR.mkdir(exist_ok=True, parents=True)
 
-        with open(LOGS_DIR / f"{word}.json", "w") as f:
+        with (LOGS_DIR / f"{word}.json").open("w") as f:
             f.write(json.dumps(answer, indent=2))

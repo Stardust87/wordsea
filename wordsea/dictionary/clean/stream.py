@@ -1,28 +1,34 @@
 import json
 from collections import defaultdict
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
 from tqdm import tqdm
 
-from wordsea.dictionary.clean.constraints import (filter_nonaplha_examples,
-                                                  has_correct_word,
-                                                  has_phonetics,
-                                                  has_raw_tag_to_skip,
-                                                  is_language, is_redirect,
-                                                  is_vulgar,
-                                                  starts_with_number)
+from wordsea.dictionary.clean.constraints import (
+    filter_nonaplha_examples,
+    has_correct_word,
+    has_phonetics,
+    has_raw_tag_to_skip,
+    is_language,
+    is_redirect,
+    is_vulgar,
+    starts_with_number,
+)
 from wordsea.dictionary.clean.entry import Entry
 
 
 class WikiRawStream:
     def __init__(self, path: str):
-        self.path = path
-        self.redirects = []
-        self.entries = defaultdict(list)
+        self.path = Path(path)
+        self.redirects: list[dict[str, str]] = []
+        self.entries: dict[str, list[Entry]] = defaultdict(list)
         self.n_valid = 0
 
-    def filter_senses(self, word: str, senses: list[dict[str, Any]]):
+    def filter_senses(
+        self, word: str, senses: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         new_senses = {}
 
         for sense in senses:
@@ -57,7 +63,7 @@ class WikiRawStream:
 
             gloss = sense["glosses"][0]
 
-            if not gloss in new_senses:
+            if gloss not in new_senses:
                 if starts_with_number(gloss):
                     continue
                 if "examples" in sense:
@@ -82,11 +88,11 @@ class WikiRawStream:
                 }
             )
 
-    def process(self):
-        out_path = self.path.replace(".json", "-filtered.json")
-        out_file = open(out_path, "w", encoding="utf-8")
+    def process(self) -> None:
+        out_path = self.path.with_name(self.path.stem + "-filtered.json")
+        out_file = out_path.open("w", encoding="utf-8")
 
-        with open(self.path, encoding="utf-8") as raw_file:
+        with self.path.open(encoding="utf-8") as raw_file:
             for idx, line in (
                 pbar := tqdm(enumerate(raw_file), desc="Cleaning")
             ):  # raw 9401685
@@ -138,7 +144,7 @@ class WikiRawStream:
             "word": entry.word,
         }
 
-    def export(self):
+    def export(self) -> None:
         redirects = pd.DataFrame(self.redirects)
         redirects = redirects.drop_duplicates(subset=["title"])
         for r in redirects.itertuples():
@@ -147,12 +153,14 @@ class WikiRawStream:
                     entry.aliases.add(r.title)
 
         info_records = []
-        out_path = self.path.replace(".json", "-minimal.json")
-        with open(out_path, "w", encoding="utf-8") as out_file:
+        out_path = self.path.with_name(self.path.stem + "-minimal.json")
+        out_file = out_path.open("w", encoding="utf-8")
+
+        with out_path.open("w", encoding="utf-8") as out_file:
             for entries in tqdm(self.entries.values(), desc="Exporting"):
                 for entry in entries:
                     out_file.write(json.dumps(entry.to_dict()) + "\n")
                     info_records.append(self.entry_info(entry))
 
         info = pd.DataFrame(info_records)
-        info.to_csv(out_path.replace(".json", "-info.csv"), index=False)
+        info.to_csv(out_path.with_name(out_path.stem + "-info.csv"), index=False)

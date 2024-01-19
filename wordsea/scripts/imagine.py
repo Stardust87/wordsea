@@ -7,7 +7,7 @@ import torch
 from wordsea.dictionary.gen import get_pipeline
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--logs-path", type=str, default="artifacts/logs")
     parser.add_argument("-m", "--model", type=str, default="pixart")
@@ -23,12 +23,12 @@ def main():
     pipe = get_pipeline(args.model)
     generator = torch.Generator(device="cpu").manual_seed(args.seed)
     for word_path in words_paths:
-        with open(word_path) as f:
+        with word_path.open() as f:
             answer = json.load(f)
             prompt = answer["prompt"]
             word = answer["word"]
 
-        images = pipe(
+        images = pipe(  # type: ignore[operator]
             prompt,
             num_inference_steps=45,
             generator=generator,

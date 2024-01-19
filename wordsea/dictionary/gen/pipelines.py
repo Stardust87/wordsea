@@ -1,10 +1,14 @@
 import torch
-from diffusers import (ConsistencyDecoderVAE, DiffusionPipeline,
-                       DPMSolverMultistepScheduler, PixArtAlphaPipeline,
-                       StableDiffusionXLPipeline)
+from diffusers import (
+    ConsistencyDecoderVAE,
+    DiffusionPipeline,
+    DPMSolverMultistepScheduler,
+    PixArtAlphaPipeline,
+    StableDiffusionXLPipeline,
+)
 
 
-def get_pipeline(model: str):
+def get_pipeline(model: str) -> DiffusionPipeline:
     match model:
         case "sdxl":
             pipe = StableDiffusionXLPipeline.from_pretrained(

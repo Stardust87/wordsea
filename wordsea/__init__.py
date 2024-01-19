@@ -9,7 +9,7 @@ class Tools(str, Enum):
     IMAGINE = "imagine"
 
 
-def main():
+def main() -> None:
     import sys
 
     toolargs = sys.argv[2:]
