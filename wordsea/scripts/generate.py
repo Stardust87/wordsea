@@ -1,11 +1,11 @@
 import argparse
 import json
 import logging
-import os
 from pathlib import Path
 
 from tqdm import tqdm
 
+from wordsea import LLAMACPP_URL, LOG_DIR, MINDICT_FILE
 from wordsea.dictionary import find_words
 from wordsea.dictionary.gen import (
     LlamaCppAPI,
@@ -34,18 +34,16 @@ def main() -> None:
         "--dictionary",
         type=str,
         help="dictionary path",
-        default="/mnt/Sidra/wiktionary/raw-wiktextract-data-minimal.json",
+        default=MINDICT_FILE,
     )
     args = parser.parse_args()
 
-    API_URL = os.environ.get("API_URL", "http://localhost:8080")
-    api = LlamaCppAPI(url=API_URL)
+    api = LlamaCppAPI(url=LLAMACPP_URL)
     if not api.health():
         raise RuntimeError("API is not healthy")
 
-    complete_words_list = parse_input_words(args.words)
-
-    entries = find_words(complete_words_list, path=Path(args.dictionary), silent=True)
+    words = parse_input_words(args.words)
+    entries = find_words(words, path=Path(args.dictionary), silent=True)
 
     for word, entry in tqdm(
         entries.items(), total=len(entries), desc="Generating image prompts"
@@ -63,8 +61,8 @@ def main() -> None:
 
         answer["word"] = word
 
-        LOGS_DIR = Path("artifacts/logs")
-        LOGS_DIR.mkdir(exist_ok=True, parents=True)
+        prompts_path = LOG_DIR / "prompts"
+        prompts_path.mkdir(exist_ok=True)
 
-        with (LOGS_DIR / f"{word}.json").open("w") as f:
+        with (prompts_path / f"{word}.json").open("w") as f:
             f.write(json.dumps(answer, indent=2))

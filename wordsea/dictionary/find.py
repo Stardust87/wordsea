@@ -16,8 +16,7 @@ def find_words(
     path: Path,
     silent: bool = False,
 ) -> dict[str, list[dict]]:
-    info_path = path.parent / (path.stem + "-info.csv")
-    info = pd.read_csv(info_path)
+    info = pd.read_csv(path.with_suffix(".csv"))
 
     words_info = info[info["word"].isin(words)]
     not_found = set(words) - set(words_info.word.unique().tolist())

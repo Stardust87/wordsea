@@ -1,23 +1,31 @@
 import argparse
 import json
-from pathlib import Path
 
 import torch
 
-from wordsea.dictionary.gen import get_pipeline
+from wordsea import LOG_DIR
+from wordsea.dictionary.gen import get_pipeline, parse_input_words
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("-l", "--logs-path", type=str, default="artifacts/logs")
+    parser.add_argument(
+        "words",
+        nargs="+",
+        type=str,
+        help="words to find - every entity can be either a word or a path to a file with words separated by newlines",
+    )
     parser.add_argument("-m", "--model", type=str, default="pixart")
     parser.add_argument("-s", "--seed", type=int, default=42)
 
     args = parser.parse_args()
-    output_path = Path(f"artifacts/images/{args.model}")
-    output_path.mkdir(exist_ok=True, parents=True)
+    images_path = LOG_DIR / "images" / args.model
+    images_path.mkdir(exist_ok=True, parents=True)
 
-    words_paths = Path(args.logs_path).glob("*.json")
+    words = parse_input_words(args.words)
+    words_paths = [
+        path for path in (LOG_DIR / "prompts").glob("*.json") if path.stem in words
+    ]
     words_paths = sorted(words_paths, key=lambda p: p.stem)
 
     pipe = get_pipeline(args.model)
@@ -34,9 +42,7 @@ def main() -> None:
             generator=generator,
             guidance_scale=4.5,
             num_images_per_prompt=2,
-            height=1024,
-            width=1024,
         ).images
 
         for i, img in enumerate(images):
-            img.save(output_path / f"{word}_{i}.png")
+            img.save(images_path / f"{word}_{i}.png")

@@ -1,5 +1,12 @@
+import os
 import subprocess
 from enum import Enum
+from pathlib import Path
+
+LLAMACPP_URL = os.getenv("LLAMACPP_URL", "http://localhost:8080")
+LOG_DIR = Path(os.getenv("LOG_DIR", "logs"))
+LOG_DIR.mkdir(exist_ok=True, parents=True)
+MINDICT_FILE = Path(os.getenv("MINDICT_FILE", "raw-wiktextract-data-minimal.json"))
 
 
 class Tools(str, Enum):

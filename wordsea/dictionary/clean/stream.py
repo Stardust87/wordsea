@@ -163,4 +163,4 @@ class WikiRawStream:
                     info_records.append(self.entry_info(entry))
 
         info = pd.DataFrame(info_records)
-        info.to_csv(out_path.with_name(out_path.stem + "-info.csv"), index=False)
+        info.to_csv(out_path.with_suffix(".csv"), index=False)
