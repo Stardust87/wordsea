@@ -22,10 +22,12 @@ dependencies = [
     "tqdm",
     "torch",
     "transformers",
-    "types-requests",
 ]
 requires-python = ">=3.10"
 description = "Expand your vocabulary with wordsea!"
+
+[project.optional-dependencies]
+dev = ["ruff", "mypy"]
 
 [project.scripts]
 wordsea = "wordsea:main"
@@ -34,12 +36,14 @@ wordsea-find = "wordsea.scripts.find:main"
 wordsea-generate = "wordsea.scripts.generate:main"
 wordsea-imagine = "wordsea.scripts.imagine:main"
 
-[tool.black]
-line-length = 88
-include_trailing_comma = true
+[tool.ruff]
+ignore = ["C901", "E501"]
+select = ["B", "C", "E", "F", "I", "PD", "PTH", "RUF", "W"]
+ignore-init-module-imports = true
+target-version = "py310"
 
-[tool.isort]
-profile = 'black'
+[tool.ruff.isort]
+known-first-party = ["wordsea"]
 
 [tool.mypy]
 disallow_untyped_calls = false
@@ -48,7 +52,6 @@ disallow_incomplete_defs = true
 
 show_error_codes = true
 enable_error_code = ["ignore-without-code"]
-ignore_missing_imports = true
 strict_optional = false
 warn_return_any = false
 allow_redefinition = true

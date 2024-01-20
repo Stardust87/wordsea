@@ -38,7 +38,7 @@ def find_words(
 
     words_info.loc[:, ["data"]] = matched
     found_words = {
-        word: [json.loads(line) for line in group.data]
+        str(word): [json.loads(line) for line in group.data]
         for word, group in words_info.groupby("word")
     }
 

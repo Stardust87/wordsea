@@ -149,8 +149,8 @@ class WikiRawStream:
         redirects = redirects.drop_duplicates(subset=["title"])
         for r in redirects.itertuples():
             if r.redirect in self.entries:
-                for entry in self.entries[r.redirect]:
-                    entry.aliases.add(r.title)
+                for entry in self.entries[str(r.redirect)]:
+                    entry.aliases.add(str(r.title))
 
         info_records = []
         out_path = self.path.with_name(self.path.stem + "-minimal.json")
