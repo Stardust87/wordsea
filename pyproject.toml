@@ -20,7 +20,7 @@ dependencies = [
     "requests",
     "sentencepiece",
     "tqdm",
-    "torch",
+    "torch~=2.1.2",
     "transformers",
 ]
 requires-python = ">=3.10"

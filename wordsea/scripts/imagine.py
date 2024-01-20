@@ -18,6 +18,7 @@ def main() -> None:
     parser.add_argument("-m", "--model", type=str, default="playground")
     parser.add_argument("-p", "--prompts", type=str, default="mixtral")
     parser.add_argument("-s", "--seed", type=int, default=42)
+    parser.add_argument("-c", "--compile", action="store_true")
 
     args = parser.parse_args()
     images_path = LOG_DIR / "images" / f"{args.prompts}-{args.model}"
@@ -31,7 +32,7 @@ def main() -> None:
     ]
     words_paths = sorted(words_paths, key=lambda p: p.stem)
 
-    pipe = get_pipeline(args.model)
+    pipe = get_pipeline(args.model, compile=args.compile)
     generator = torch.Generator(device="cpu").manual_seed(args.seed)
     for word_path in words_paths:
         with word_path.open() as f:
@@ -41,7 +42,7 @@ def main() -> None:
 
         images = pipe(  # type: ignore[operator]
             prompt,
-            num_inference_steps=45,
+            num_inference_steps=30,
             generator=generator,
             guidance_scale=4.5,
             num_images_per_prompt=2,

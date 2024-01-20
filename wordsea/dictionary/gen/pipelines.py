@@ -1,31 +1,16 @@
 import torch
-from diffusers import (
-    ConsistencyDecoderVAE,
-    DiffusionPipeline,
-    DPMSolverMultistepScheduler,
-    PixArtAlphaPipeline,
-    StableDiffusionXLPipeline,
-)
+from diffusers import DiffusionPipeline
 
 
-def get_pipeline(model: str) -> DiffusionPipeline:
+def get_pipeline(model: str, compile: bool = False) -> DiffusionPipeline:
+    torch.backends.cuda.matmul.allow_tf32 = True
+    if compile:
+        torch._inductor.config.conv_1x1_as_mm = True
+        torch._inductor.config.coordinate_descent_tuning = True
+        torch._inductor.config.epilogue_fusion = False
+        torch._inductor.config.coordinate_descent_check_all_directions = True
+
     match model:
-        case "sdxl":
-            pipe = StableDiffusionXLPipeline.from_pretrained(
-                "stabilityai/stable-diffusion-xl-base-1.0",
-                torch_dtype=torch.bfloat16,
-                safety_checker=None,
-            )
-
-        case "pixart":
-            pipe = PixArtAlphaPipeline.from_pretrained(
-                "PixArt-alpha/PixArt-XL-2-512x512",
-                torch_dtype=torch.bfloat16,
-            )
-            pipe.vae = ConsistencyDecoderVAE.from_pretrained(
-                "openai/consistency-decoder", torch_dtype=torch.bfloat16
-            )
-
         case "playground":
             pipe = DiffusionPipeline.from_pretrained(
                 "playgroundai/playground-v2-1024px-aesthetic",
@@ -35,8 +20,15 @@ def get_pipeline(model: str) -> DiffusionPipeline:
                 variant="fp16",
             )
 
+            if compile:
+                pipe.unet.to(memory_format=torch.channels_last)
+                pipe.unet = torch.compile(
+                    pipe.unet, mode="max-autotune", fullgraph=True
+                )
+
+            pipe.fuse_qkv_projections()
+
         case _:
             raise ValueError(f"model not supported: {model}")
 
-    pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
     return pipe.to("cuda")
