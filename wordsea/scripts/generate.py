@@ -30,15 +30,24 @@ def main() -> None:
         help="dictionary path",
         default=MINDICT_FILE,
     )
+    parser.add_argument(
+        "-u", "--update", action="store_true", help="whether to update existing prompts"
+    )
     args = parser.parse_args()
     prompts_path = LOG_DIR / "prompts" / args.model
-    prompts_path.mkdir(exist_ok=True)
+    prompts_path.mkdir(exist_ok=True, parents=True)
 
     api = LlamaCppAPI(url=LLAMACPP_URL, model=args.model)
     if not api.health():
         raise RuntimeError("API is not healthy")
 
     words = parse_input_words(args.words)
+    if not args.update:
+        words = [word for word in words if not (prompts_path / f"{word}.json").exists()]
+    if not words:
+        print("All prompts are already generated")
+        return
+
     entries = find_words(words, path=Path(args.dictionary), silent=True)
 
     for word, entry in tqdm(
@@ -52,4 +61,4 @@ def main() -> None:
             continue
 
         with (prompts_path / f"{word}.json").open("w") as f:
-            f.write(json.dumps(answer, indent=2))
+            f.write(json.dumps(answer, indent=2, ensure_ascii=False))

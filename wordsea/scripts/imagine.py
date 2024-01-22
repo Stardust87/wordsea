@@ -15,6 +15,9 @@ def main() -> None:
         type=str,
         help="words to find - every entity can be either a word or a path to a file with words separated by newlines",
     )
+    parser.add_argument(
+        "-u", "--update", action="store_true", help="whether to update existing prompts"
+    )
     parser.add_argument("-m", "--model", type=str, default="playground")
     parser.add_argument("-p", "--prompts", type=str, default="mixtral")
     parser.add_argument("-s", "--seed", type=int, default=42)
@@ -25,6 +28,12 @@ def main() -> None:
     images_path.mkdir(exist_ok=True, parents=True)
 
     words = parse_input_words(args.words)
+    if not args.update:
+        words = [word for word in words if not list(images_path.glob(f"{word}*.png"))]
+    if not words:
+        print("All images are already generated")
+        return
+
     words_paths = [
         path
         for path in (LOG_DIR / "prompts" / args.prompts).glob("*.json")
