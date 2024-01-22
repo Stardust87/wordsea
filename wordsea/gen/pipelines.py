@@ -1,14 +1,9 @@
 import torch
-from diffusers import DiffusionPipeline
+from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
 
 
-def get_pipeline(model: str, compile: bool = False) -> DiffusionPipeline:
+def get_pipeline(model: str) -> DiffusionPipeline:
     torch.backends.cuda.matmul.allow_tf32 = True
-    if compile:
-        torch._inductor.config.conv_1x1_as_mm = True
-        torch._inductor.config.coordinate_descent_tuning = True
-        torch._inductor.config.epilogue_fusion = False
-        torch._inductor.config.coordinate_descent_check_all_directions = True
 
     match model:
         case "playground":
@@ -20,15 +15,13 @@ def get_pipeline(model: str, compile: bool = False) -> DiffusionPipeline:
                 variant="fp16",
             )
 
-            if compile:
-                pipe.unet.to(memory_format=torch.channels_last)
-                pipe.unet = torch.compile(
-                    pipe.unet, mode="max-autotune", fullgraph=True
-                )
-
+            pipe.scheduler = DPMSolverMultistepScheduler.from_config(
+                pipe.scheduler.config
+            )
             pipe.fuse_qkv_projections()
 
         case _:
             raise ValueError(f"model not supported: {model}")
 
+    pipe.set_progress_bar_config(disable=True)
     return pipe.to("cuda")

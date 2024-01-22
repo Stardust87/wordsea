@@ -19,7 +19,7 @@ def parse_input_words(input_words: list[str]) -> list[str]:
         else:
             complete_words_list.append(word)
 
-    return list(set(complete_words_list))
+    return sorted(set(complete_words_list))
 
 
 def render_definition(entries: list[dict[str, Any]]) -> str:

@@ -2,6 +2,7 @@ import argparse
 import json
 
 import torch
+from tqdm import tqdm
 
 from wordsea import LOG_DIR
 from wordsea.gen import get_pipeline, parse_input_words
@@ -21,7 +22,6 @@ def main() -> None:
     parser.add_argument("-m", "--model", type=str, default="playground")
     parser.add_argument("-p", "--prompts", type=str, default="mixtral")
     parser.add_argument("-s", "--seed", type=int, default=42)
-    parser.add_argument("-c", "--compile", action="store_true")
 
     args = parser.parse_args()
     images_path = LOG_DIR / "images" / f"{args.prompts}-{args.model}"
@@ -41,13 +41,16 @@ def main() -> None:
     ]
     words_paths = sorted(words_paths, key=lambda p: p.stem)
 
-    pipe = get_pipeline(args.model, compile=args.compile)
+    pipe = get_pipeline(args.model)
     generator = torch.Generator(device="cpu").manual_seed(args.seed)
-    for word_path in words_paths:
+
+    for word_path in (pbar := tqdm(words_paths, desc="Generating images")):
         with word_path.open() as f:
             answer = json.load(f)
             prompt = answer["prompt"]
             word = answer["word"]
+
+        pbar.set_postfix_str(word)
 
         images = pipe(  # type: ignore[operator]
             prompt,

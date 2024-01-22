@@ -50,9 +50,9 @@ def main() -> None:
 
     entries = find_words(words, path=Path(args.dictionary), silent=True)
 
-    for word, entry in tqdm(
-        entries.items(), total=len(entries), desc="Generating image prompts"
-    ):
+    pbar = tqdm(entries.items(), total=len(entries), desc="Generating image prompts")
+    for word, entry in pbar:
+        pbar.set_postfix_str(word)
         html = render_definition(entry)
         prompt = render_prompt(word, html)
 
