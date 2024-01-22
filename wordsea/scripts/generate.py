@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from wordsea import LLAMACPP_URL, LOG_DIR, MINDICT_FILE
 from wordsea.dictionary import find_words
-from wordsea.dictionary.gen import (
+from wordsea.gen import (
     LlamaCppAPI,
     parse_input_words,
     render_definition,
@@ -37,16 +37,16 @@ def main() -> None:
     prompts_path = LOG_DIR / "prompts" / args.model
     prompts_path.mkdir(exist_ok=True, parents=True)
 
-    api = LlamaCppAPI(url=LLAMACPP_URL, model=args.model)
-    if not api.health():
-        raise RuntimeError("API is not healthy")
-
     words = parse_input_words(args.words)
     if not args.update:
         words = [word for word in words if not (prompts_path / f"{word}.json").exists()]
     if not words:
         print("All prompts are already generated")
         return
+
+    api = LlamaCppAPI(url=LLAMACPP_URL, model=args.model)
+    if not api.health():
+        raise RuntimeError("API is not healthy")
 
     entries = find_words(words, path=Path(args.dictionary), silent=True)
 

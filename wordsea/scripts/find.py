@@ -4,7 +4,7 @@ from pathlib import Path
 
 from wordsea import LOG_DIR, MINDICT_FILE
 from wordsea.dictionary import find_words
-from wordsea.dictionary.gen import parse_input_words, render_definition
+from wordsea.gen import parse_input_words, render_definition
 
 
 def main() -> None:

@@ -4,7 +4,7 @@ import json
 import torch
 
 from wordsea import LOG_DIR
-from wordsea.dictionary.gen import get_pipeline, parse_input_words
+from wordsea.gen import get_pipeline, parse_input_words
 
 
 def main() -> None:
