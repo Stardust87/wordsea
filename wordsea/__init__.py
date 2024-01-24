@@ -3,6 +3,7 @@ import subprocess
 from enum import Enum
 from pathlib import Path
 
+MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
 LLAMACPP_URL = os.getenv("LLAMACPP_URL", "http://localhost:8080")
 LOG_DIR = Path(os.getenv("LOG_DIR", "logs"))
 LOG_DIR.mkdir(exist_ok=True, parents=True)

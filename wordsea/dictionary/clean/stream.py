@@ -1,11 +1,12 @@
 import json
-from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from mongoengine import connect
 from tqdm import tqdm
 
+from wordsea import MONGODB_URL
 from wordsea.dictionary.clean.constraints import (
     filter_nonaplha_examples,
     has_correct_word,
@@ -16,15 +17,14 @@ from wordsea.dictionary.clean.constraints import (
     is_vulgar,
     starts_with_number,
 )
-from wordsea.dictionary.clean.entry import Entry
+from wordsea.dictionary.schema import Redirect, Word
 
 
 class WikiRawStream:
     def __init__(self, path: str):
         self.path = Path(path)
-        self.redirects: list[dict[str, str]] = []
-        self.entries: dict[str, list[Entry]] = defaultdict(list)
-        self.n_valid = 0
+        self.redirects: list[Redirect] = []
+        self.words: list[Word] = []
 
     def filter_senses(
         self, word: str, senses: list[dict[str, Any]]
@@ -36,21 +36,7 @@ class WikiRawStream:
                 for form in sense["form_of"]:
                     if "word" in form:
                         self.redirects.append(
-                            {
-                                "title": word,
-                                "redirect": form["word"],
-                            }
-                        )
-                continue
-
-            elif "alt_of" in sense:
-                for alt in sense["alt_of"]:
-                    if "word" in alt:
-                        self.redirects.append(
-                            {
-                                "title": word,
-                                "redirect": alt["word"],
-                            }
+                            Redirect(from_word=word, to_word=form["word"])
                         )
                 continue
 
@@ -79,29 +65,14 @@ class WikiRawStream:
 
         return list(new_senses.values())
 
-    def forms_to_aliases(self, word: str, forms: list[dict[str, Any]]) -> None:
-        for form in forms:
-            self.redirects.append(
-                {
-                    "title": form["form"],
-                    "redirect": word,
-                }
-            )
-
     def process(self) -> None:
-        out_path = self.path.with_name(self.path.stem + "-filtered.json")
-        out_file = out_path.open("w", encoding="utf-8")
-
         with self.path.open(encoding="utf-8") as raw_file:
-            for idx, line in (
-                pbar := tqdm(enumerate(raw_file), desc="Cleaning")
-            ):  # raw 9401685
+            pbar = tqdm(enumerate(raw_file), desc="Cleaning")
+            for idx, line in pbar:
                 pbar.set_postfix(
                     {
-                        "pct_valid": f"{self.n_valid / (idx + 1):.2%}",
-                        "pct_redirects": f"{len(self.redirects) / (idx + 1):.2%}",
-                        "n_valid": f"{self.n_valid/1000:.1f}K",
-                        "n_redirects": f"{len(self.redirects)/1000:.1f}K",
+                        "pct_valid": f"{len(self.words) / (idx + 1):.2%}",
+                        "n_valid": f"{len(self.words)/1000:.1f}K",
                     }
                 )
 
@@ -109,10 +80,7 @@ class WikiRawStream:
 
                 if is_redirect(entry):
                     self.redirects.append(
-                        {
-                            "title": entry["title"],
-                            "redirect": entry["redirect"],
-                        }
+                        Redirect(from_word=entry["title"], to_word=entry["redirect"])
                     )
                     continue
                 if not is_language(entry):
@@ -124,43 +92,35 @@ class WikiRawStream:
                 if is_vulgar(entry):
                     continue
 
-                if "forms" in entry:
-                    self.forms_to_aliases(entry["word"], entry["forms"])
-
                 entry["senses"] = self.filter_senses(entry["word"], entry["senses"])
                 if not entry["senses"]:
                     continue
 
-                entry = Entry.from_dict(self.n_valid, entry)
-                self.entries[entry.word].append(entry)
-                self.n_valid += 1
-                out_file.write(line)
+                self.words.append(Word.from_wiktionary(entry))
 
-        out_file.close()
+    def process_redirects(self) -> list[Redirect]:
+        redirects_df = pd.DataFrame([json.loads(r.to_json()) for r in self.redirects])
+        redirects_df = redirects_df.drop_duplicates(subset=["from_word"], keep="first")
 
-    def entry_info(self, entry: Entry) -> dict[str, Any]:
-        return {
-            "id": entry.id,
-            "word": entry.word,
-        }
+        words_df = pd.DataFrame([w.word for w in self.words], columns=["word"])
+        words_df = words_df.drop_duplicates(subset=["word"], keep="first")
+
+        redirects_df = redirects_df.merge(
+            words_df, left_on="to_word", right_on="word", how="inner"
+        )
+
+        return [
+            Redirect(from_word=r.from_word, to_word=r.word)
+            for r in redirects_df.itertuples()
+        ]
 
     def export(self) -> None:
-        redirects = pd.DataFrame(self.redirects)
-        redirects = redirects.drop_duplicates(subset=["title"])
-        for r in redirects.itertuples():
-            if r.redirect in self.entries:
-                for entry in self.entries[str(r.redirect)]:
-                    entry.aliases.add(str(r.title))
+        self.redirects = self.process_redirects()
 
-        info_records = []
-        out_path = self.path.with_name(self.path.stem + "-minimal.json")
-        out_file = out_path.open("w", encoding="utf-8")
+        client = connect("wordsea", host=MONGODB_URL)
+        Word.drop_collection()
+        Redirect.drop_collection()
 
-        with out_path.open("w", encoding="utf-8") as out_file:
-            for entries in tqdm(self.entries.values(), desc="Exporting"):
-                for entry in entries:
-                    out_file.write(json.dumps(entry.to_dict()) + "\n")
-                    info_records.append(self.entry_info(entry))
-
-        info = pd.DataFrame(info_records)
-        info.to_csv(out_path.with_suffix(".csv"), index=False)
+        Word.objects.insert(self.words)
+        Redirect.objects.insert(self.redirects)
+        client.close()
