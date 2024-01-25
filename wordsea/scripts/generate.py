@@ -1,17 +1,11 @@
 import argparse
 import json
-from pathlib import Path
 
 from tqdm import tqdm
 
-from wordsea import LLAMACPP_URL, LOG_DIR, MINDICT_FILE
+from wordsea import LLAMACPP_URL, LOG_DIR
 from wordsea.dictionary import find_words
-from wordsea.gen import (
-    LlamaCppAPI,
-    parse_input_words,
-    render_definition,
-    render_prompt,
-)
+from wordsea.gen import LlamaCppAPI, parse_input_words, render_definition, render_prompt
 
 
 def main() -> None:
@@ -23,13 +17,6 @@ def main() -> None:
         help="words to find - every entity can be either a word or a path to a file with words separated by newlines",
     )
     parser.add_argument("-m", "--model", type=str, default="mixtral")
-    parser.add_argument(
-        "-d",
-        "--dictionary",
-        type=str,
-        help="dictionary path",
-        default=MINDICT_FILE,
-    )
     parser.add_argument(
         "-u", "--update", action="store_true", help="whether to update existing prompts"
     )
@@ -48,7 +35,7 @@ def main() -> None:
     if not api.health():
         raise RuntimeError("API is not healthy")
 
-    entries = find_words(words, path=Path(args.dictionary), silent=True)
+    entries = find_words(words)
 
     pbar = tqdm(entries.items(), total=len(entries), desc="Generating image prompts")
     for word, entry in pbar:

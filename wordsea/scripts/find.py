@@ -1,8 +1,7 @@
 import argparse
 import json
-from pathlib import Path
 
-from wordsea import LOG_DIR, MINDICT_FILE
+from wordsea import LOG_DIR
 from wordsea.dictionary import find_words
 from wordsea.gen import parse_input_words, render_definition
 
@@ -23,18 +22,12 @@ def main() -> None:
         action="store_true",
         help="log found entries in console",
     )
-
-    parser.add_argument(
-        "-d",
-        "--dictionary",
-        type=str,
-        help="dictionary path",
-        default=MINDICT_FILE,
-    )
     args = parser.parse_args()
 
     words = parse_input_words(args.words)
-    entries = find_words(words, path=Path(args.dictionary))
+
+    entries = find_words(words)
+
     if args.log:
         print(json.dumps(entries, indent=2))
 

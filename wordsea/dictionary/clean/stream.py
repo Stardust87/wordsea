@@ -7,6 +7,7 @@ from mongoengine import connect
 from tqdm import tqdm
 
 from wordsea import MONGODB_URL
+from wordsea.db.schema import Redirect, Word
 from wordsea.dictionary.clean.constraints import (
     filter_nonaplha_examples,
     has_correct_word,
@@ -17,7 +18,6 @@ from wordsea.dictionary.clean.constraints import (
     is_vulgar,
     starts_with_number,
 )
-from wordsea.dictionary.schema import Redirect, Word
 
 
 class WikiRawStream:
