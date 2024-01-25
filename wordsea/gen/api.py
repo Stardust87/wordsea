@@ -6,36 +6,16 @@ from typing import Any
 import requests
 from jsonschema import ValidationError, validate
 
-logging.basicConfig(
-    format="%(levelname)s - %(message)s",
-    level=logging.ERROR,
-)
-
-JSON_GRAMMAR = r"""root   ::= object
-value  ::= object | array | string | number | ("true" | "false" | "null") ws
-
-object ::=
-"{" ws (
-            string ":" ws value
-    ("," ws string ":" ws value)*
-)? "}" ws
-
-array  ::=
-"[" ws (
-            value
-    ("," ws value)*
-)? "]" ws
-
-string ::=
-"\"" (
-    [^"\\] |
-    "\\" (["\\/bfnrt] | "u" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F]) # escapes
-)* "\"" ws
-
-number ::= ("-"? ([0-9] | [1-9] [0-9]*)) ("." [0-9]+)? ([eE] [-+]? [0-9]+)? ws
-
-# Optional space: by convention, applied in this grammar after literal chars when allowed
-ws ::= ([ \t\n] ws)?"""
+JSON_GRAMMAR = r"""root ::= ImagePrompt
+ImagePrompt ::= "{"   ws   "\"explanation\":"   ws   string   ","   ws   "\"prompt\":"   ws   string   "}"
+ImagePromptlist ::= "[]" | "["   ws   ImagePrompt   (","   ws   ImagePrompt)*   "]"
+string ::= "\""   ([^"]*)   "\""
+boolean ::= "true" | "false"
+ws ::= [ \t\n]*
+number ::= [0-9]+   "."?   [0-9]*
+stringlist ::= "["   ws   "]" | "["   ws   string   (","   ws   string)*   ws   "]"
+numberlist ::= "["   ws   "]" | "["   ws   string   (","   ws   number)*   ws   "]"
+"""
 
 
 @dataclass
@@ -58,6 +38,9 @@ class LLMParams:
 
 MixtralParams = LLMParams(template="[INST] {prompt} [/INST]")
 MistralParams = LLMParams(template="[INST] {prompt} [/INST]")
+YiParams = LLMParams(
+    template="<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant"
+)
 
 OutputSchema = {
     "type": "object",
@@ -79,6 +62,8 @@ class LlamaCppAPI:
                 self.params = asdict(MixtralParams)
             case "mistral":
                 self.params = asdict(MistralParams)
+            case "yi":
+                self.params = asdict(YiParams)
             case _:
                 raise ValueError(f"Unknown model: {model}")
 

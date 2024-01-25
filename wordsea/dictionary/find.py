@@ -2,7 +2,7 @@ import json
 import logging
 from collections import defaultdict
 
-from wordsea.db import Word, with_mongo
+from wordsea.db import Word
 
 logging.basicConfig(
     format="%(levelname)s - %(message)s",
@@ -10,10 +10,9 @@ logging.basicConfig(
 )
 
 
-@with_mongo
 def find_words(
     words: list[str],
-) -> dict[str, list[dict]]:
+) -> dict[str, list[Word]]:
     found_words = defaultdict(list)
     not_found = []
 

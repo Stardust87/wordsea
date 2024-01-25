@@ -1,10 +1,11 @@
 import argparse
-import json
+import io
+import logging
 
 import torch
 from tqdm import tqdm
 
-from wordsea import LOG_DIR
+from wordsea.db import Image, Mnemonic, MongoDB
 from wordsea.gen import get_pipeline, parse_input_words
 
 
@@ -16,49 +17,41 @@ def main() -> None:
         type=str,
         help="words to find - every entity can be either a word or a path to a file with words separated by newlines",
     )
-    parser.add_argument(
-        "-u", "--update", action="store_true", help="whether to update existing prompts"
-    )
+
     parser.add_argument("-m", "--model", type=str, default="playground")
-    parser.add_argument("-p", "--prompts", type=str, default="mixtral")
     parser.add_argument("-s", "--seed", type=int, default=42)
 
     args = parser.parse_args()
-    images_path = LOG_DIR / "images" / f"{args.prompts}-{args.model}"
-    images_path.mkdir(exist_ok=True, parents=True)
-
     words = parse_input_words(args.words)
-    if not args.update:
-        words = [word for word in words if not list(images_path.glob(f"{word}*.png"))]
-    if not words:
-        print("All images are already generated")
-        return
 
-    words_paths = [
-        path
-        for path in (LOG_DIR / "prompts" / args.prompts).glob("*.json")
-        if path.stem in words
-    ]
-    words_paths = sorted(words_paths, key=lambda p: p.stem)
+    with MongoDB():
+        incomplete_mnemonics = Mnemonic.objects(
+            word__in=words, images__size=0
+        ).order_by("word")
 
-    pipe = get_pipeline(args.model)
-    generator = torch.Generator(device="cpu").manual_seed(args.seed)
+        if not incomplete_mnemonics:
+            logging.info("all images are already generated")
 
-    for word_path in (pbar := tqdm(words_paths, desc="Generating images")):
-        with word_path.open() as f:
-            answer = json.load(f)
-            prompt = answer["prompt"]
-            word = answer["word"]
+        pipe = get_pipeline(args.model)
+        generator = torch.Generator(device="cpu").manual_seed(args.seed)
 
-        pbar.set_postfix_str(word)
+        for mnemo in (pbar := tqdm(incomplete_mnemonics, desc="Generating images")):
+            pbar.set_postfix_str(mnemo.word)
+            mnemo.image_model = args.model
 
-        images = pipe(  # type: ignore[operator]
-            prompt,
-            num_inference_steps=30,
-            generator=generator,
-            guidance_scale=4.5,
-            num_images_per_prompt=2,
-        ).images
+            output = pipe(  # type: ignore[operator]
+                mnemo.prompt,
+                num_inference_steps=30,
+                generator=generator,
+                guidance_scale=4.5,
+                num_images_per_prompt=2,
+            )
 
-        for i, img in enumerate(images):
-            img.save(images_path / f"{word}_{i}.png")
+            for image in output.images:
+                with io.BytesIO() as buf:
+                    image.save(buf, format="JPEG")
+                    image_db = Image()
+                    image_db.data.put(buf.getvalue(), content_type="image/jpeg")
+                    mnemo.images.append(image_db)
+
+            mnemo.save()

@@ -4,6 +4,8 @@ from mongoengine import (
     Document,
     EmbeddedDocument,
     EmbeddedDocumentField,
+    EmbeddedDocumentListField,
+    FileField,
     ListField,
     StringField,
 )
@@ -54,3 +56,17 @@ class Redirect(Document):
     meta: ClassVar[dict] = {"collection": "redirects"}
     from_word = StringField(required=True)
     to_word = StringField(required=True)
+
+
+class Image(EmbeddedDocument):
+    data = FileField()
+
+
+class Mnemonic(Document):
+    meta: ClassVar[dict] = {"collection": "mnemonics"}
+    word = StringField(required=True)
+    explanation = StringField(required=True)
+    prompt = StringField(required=True)
+    language_model = StringField(required=True)
+    images = EmbeddedDocumentListField(Image)
+    image_model = StringField()

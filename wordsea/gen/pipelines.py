@@ -1,5 +1,5 @@
 import torch
-from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
+from diffusers import DiffusionPipeline
 
 
 def get_pipeline(model: str) -> DiffusionPipeline:
@@ -15,9 +15,6 @@ def get_pipeline(model: str) -> DiffusionPipeline:
                 variant="fp16",
             )
 
-            pipe.scheduler = DPMSolverMultistepScheduler.from_config(
-                pipe.scheduler.config
-            )
             pipe.fuse_qkv_projections()
 
         case _:
