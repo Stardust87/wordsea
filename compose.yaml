@@ -3,3 +3,14 @@ services:
     image: mongo:latest
     ports:
       - 27017:27017
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017
+    volumes:
+      - ./app:/app
+    ports:
+      - 5173:5173
