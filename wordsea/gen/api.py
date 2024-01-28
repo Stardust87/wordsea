@@ -26,6 +26,7 @@ class LLMParams:
     top_k: int = 40
     min_p: float = 0.02
     presence_penalty: float = 0.0
+    dynatemp_range: float = 0.0
     frequency_penalty: float = 0.0
     repeat_penalty: float = 1.0
     penalize_nl: bool = False
@@ -36,7 +37,7 @@ class LLMParams:
         self.stop.append("}")
 
 
-MixtralParams = LLMParams(template="[INST] {prompt} [/INST]")
+MixtralParams = LLMParams(template="[INST] {prompt} [/INST]", dynatemp_range=0.5)
 MistralParams = LLMParams(template="[INST] {prompt} [/INST]")
 YiParams = LLMParams(
     template="<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant"
