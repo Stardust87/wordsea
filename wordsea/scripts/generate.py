@@ -1,17 +1,36 @@
 import argparse
-import json
-from pathlib import Path
+import logging
 
 from tqdm import tqdm
 
-from wordsea import LLAMACPP_URL, LOG_DIR, MINDICT_FILE
+from wordsea import LLAMACPP_URL
+from wordsea.db import Mnemonic, MongoDB, Word
 from wordsea.dictionary import find_words
-from wordsea.gen import (
-    LlamaCppAPI,
-    parse_input_words,
-    render_definition,
-    render_prompt,
-)
+from wordsea.gen import LlamaCppAPI, parse_input_words, render_definition, render_prompt
+
+
+def generate_image_prompts(model: str, entries: dict[str, list[Word]]) -> None:
+    api = LlamaCppAPI(url=LLAMACPP_URL, model=model)
+    if not api.health():
+        raise RuntimeError("API is not healthy")
+
+    pbar = tqdm(entries.items(), total=len(entries), desc="Generating image prompts")
+    for word, entry in pbar:
+        pbar.set_postfix_str(word)
+        html = render_definition(entry)
+        prompt = render_prompt(word, html)
+
+        answer = api.generate(word, prompt)
+        if answer is None:
+            continue
+
+        mnemonic = Mnemonic(
+            word=word,
+            explanation=answer["explanation"],
+            prompt=answer["prompt"],
+            language_model=model,
+        )
+        mnemonic.save()
 
 
 def main() -> None:
@@ -24,41 +43,23 @@ def main() -> None:
     )
     parser.add_argument("-m", "--model", type=str, default="mixtral")
     parser.add_argument(
-        "-d",
-        "--dictionary",
-        type=str,
-        help="dictionary path",
-        default=MINDICT_FILE,
-    )
-    parser.add_argument(
-        "-u", "--update", action="store_true", help="whether to update existing prompts"
+        "-n",
+        "--new",
+        action="store_true",
+        help="whether to generate prompts only for words that are not in the database",
     )
     args = parser.parse_args()
-    prompts_path = LOG_DIR / "prompts" / args.model
-    prompts_path.mkdir(exist_ok=True, parents=True)
 
     words = parse_input_words(args.words)
-    if not args.update:
-        words = [word for word in words if not (prompts_path / f"{word}.json").exists()]
-    if not words:
-        print("All prompts are already generated")
-        return
 
-    api = LlamaCppAPI(url=LLAMACPP_URL, model=args.model)
-    if not api.health():
-        raise RuntimeError("API is not healthy")
+    with MongoDB():
+        if args.new:
+            generated = [mnemo.word for mnemo in Mnemonic.objects(word__in=words)]
+            words = [word for word in words if word not in generated]
 
-    entries = find_words(words, path=Path(args.dictionary), silent=True)
+        if not words:
+            logging.info("all prompts are already generated")
+            exit(0)
 
-    pbar = tqdm(entries.items(), total=len(entries), desc="Generating image prompts")
-    for word, entry in pbar:
-        pbar.set_postfix_str(word)
-        html = render_definition(entry)
-        prompt = render_prompt(word, html)
-
-        answer = api.generate(word, prompt)
-        if answer is None:
-            continue
-
-        with (prompts_path / f"{word}.json").open("w") as f:
-            f.write(json.dumps(answer, indent=2, ensure_ascii=False))
+        entries = find_words(words)
+        generate_image_prompts(args.model, entries)

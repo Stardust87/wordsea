@@ -15,6 +15,7 @@ dependencies = [
     "diffusers",
     "jinja2",
     "jsonschema",
+    "mongoengine",
     "pandas",
     "peft",
     "requests",
@@ -52,6 +53,7 @@ disallow_incomplete_defs = true
 
 show_error_codes = true
 enable_error_code = ["ignore-without-code"]
+ignore_missing_imports = true
 strict_optional = false
 warn_return_any = false
 allow_redefinition = true
