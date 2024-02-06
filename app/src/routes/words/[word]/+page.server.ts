@@ -1,4 +1,5 @@
-import { mnemonics, gridfs } from "$lib/server/database";
+import { mnemonics, words, gridfs } from "$lib/server/database";
+import type { Meaning } from "$lib/types/Meaning.ts";
 
 export const load = async ({ params }) => {
     const { word } = params;
@@ -23,11 +24,14 @@ export const load = async ({ params }) => {
         }
     }
 
+    const meanings_db = await words.find({ word }, { projection: { _id: false } }).toArray();
+    const meanings: Meaning[] = JSON.parse(JSON.stringify(meanings_db));
 
     return {
         ...params,
         prompt: mnemo?.prompt,
         explanation: mnemo?.explanation,
+        meanings: meanings,
         images,
     }
 }
