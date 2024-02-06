@@ -2,7 +2,6 @@ import { mnemonics, gridfs } from "$lib/server/database";
 
 export const load = async ({ params }) => {
     const { word } = params;
-    const availableWords = await mnemonics.distinct("word");
 
     const mnemo = await mnemonics.findOne({ word }, { sort: { $natural: -1 } });
     const images: string[] = [];
@@ -30,6 +29,5 @@ export const load = async ({ params }) => {
         prompt: mnemo?.prompt,
         explanation: mnemo?.explanation,
         images,
-        availableWords,
     }
 }
