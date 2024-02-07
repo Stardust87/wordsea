@@ -1,11 +1,9 @@
 <script lang="ts">
 	import type { Meaning } from '$lib/types/Meaning';
-	export let word: string = '';
 	export let meanings: Meaning[] = [];
 </script>
 
-<span class="text-2xl">{word}</span>
-<ol class="list-roman ml-4 list-inside">
+<ol class="list-roman list-inside">
 	{#each meanings as meaning}
 		<li>
 			<span class="text-xl italic">{meaning.pos}</span>
