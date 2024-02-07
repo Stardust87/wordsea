@@ -99,7 +99,9 @@ class WikiRawStream:
                 self.meanings.append(Meaning.from_wiktionary(entry))
 
     def process_redirects(self) -> list[Redirect]:
-        redirects_df = pd.DataFrame([json.loads(r.to_json()) for r in self.redirects])
+        redirects_df = pd.DataFrame(
+            [json.loads(r.to_json(ensure_ascii=False)) for r in self.redirects]
+        )
         redirects_df = redirects_df.drop_duplicates(subset=["from_word"], keep="first")
 
         meanings_df = pd.DataFrame([w.word for w in self.meanings], columns=["word"])
