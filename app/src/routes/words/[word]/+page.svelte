@@ -11,7 +11,7 @@
 <a class="mt-4 block text-lg text-violet-600 underline" href="/">Home</a>
 
 <div>
-	<h1 class="text-4xl">{word}</h1>
+	<h1 class="text-5xl">{word}</h1>
 	<p><span class="font-medium"> prompt </span> <span class="italic"> {prompt} </span></p>
 
 	<div class="my-4 flex flex-wrap items-center gap-4">

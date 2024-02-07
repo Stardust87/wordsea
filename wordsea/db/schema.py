@@ -1,6 +1,7 @@
 from typing import Any, ClassVar
 
 from mongoengine import (
+    DictField,
     Document,
     EmbeddedDocument,
     EmbeddedDocumentField,
@@ -19,7 +20,7 @@ class Example(EmbeddedDocument):
     @classmethod
     def from_wiktionary(cls, data: dict[str, Any]) -> "Example":
         return cls(
-            text=data["text"],
+            text=data["text"].replace("&#32;", ""),
             ref=data.get("ref"),
             type=data.get("type"),
         )
@@ -31,11 +32,22 @@ class Sense(EmbeddedDocument):
     examples = ListField(EmbeddedDocumentField("Example"))
 
 
+FORMS_TYPES = {
+    "third_person": {"present", "singular", "third-person"},
+    "present_participle": {"present", "participle"},
+    "past_participle": {"past", "participle"},
+    "comparative": {"comparative"},
+    "superlative": {"superlative"},
+    "plural": {"plural"},
+}
+
+
 class Meaning(Document):
     meta: ClassVar[dict] = {"collection": "meanings"}
     word = StringField(required=True)
     pos = StringField(required=True)
     senses = ListField(EmbeddedDocumentField("Sense"))
+    forms = DictField()
 
     @classmethod
     def from_wiktionary(cls, data: dict[str, Any]) -> "Meaning":
@@ -49,7 +61,17 @@ class Meaning(Document):
             examples = [Example.from_wiktionary(ex) for ex in sense.get("examples", [])]
             senses.append(Sense(gloss=gloss, raw_gloss=raw_gloss, examples=examples))
 
-        return cls(word=word, pos=pos, senses=senses)
+        forms = {}
+        for form in data.get("forms", []):
+            if "tags" not in form:
+                continue
+
+            for form_type, tags in FORMS_TYPES.items():
+                if tags == set(form["tags"]):
+                    forms[form_type] = form["form"]
+                    break
+
+        return cls(word=word, pos=pos, senses=senses, forms=forms)
 
 
 class Redirect(Document):
