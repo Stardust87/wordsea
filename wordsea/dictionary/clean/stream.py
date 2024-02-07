@@ -7,7 +7,7 @@ from mongoengine import connect
 from tqdm import tqdm
 
 from wordsea import MONGODB_URL
-from wordsea.db.schema import Redirect, Word
+from wordsea.db.schema import Meaning, Redirect
 from wordsea.dictionary.clean.constraints import (
     filter_nonaplha_examples,
     has_correct_word,
@@ -24,7 +24,7 @@ class WikiRawStream:
     def __init__(self, path: str):
         self.path = Path(path)
         self.redirects: list[Redirect] = []
-        self.words: list[Word] = []
+        self.meanings: list[Meaning] = []
 
     def filter_senses(
         self, word: str, senses: list[dict[str, Any]]
@@ -71,8 +71,8 @@ class WikiRawStream:
             for idx, line in pbar:
                 pbar.set_postfix(
                     {
-                        "pct_valid": f"{len(self.words) / (idx + 1):.2%}",
-                        "n_valid": f"{len(self.words)/1000:.1f}K",
+                        "pct_valid": f"{len(self.meanings) / (idx + 1):.2%}",
+                        "n_valid": f"{len(self.meanings)/1000:.1f}K",
                     }
                 )
 
@@ -96,17 +96,17 @@ class WikiRawStream:
                 if not entry["senses"]:
                     continue
 
-                self.words.append(Word.from_wiktionary(entry))
+                self.meanings.append(Meaning.from_wiktionary(entry))
 
     def process_redirects(self) -> list[Redirect]:
         redirects_df = pd.DataFrame([json.loads(r.to_json()) for r in self.redirects])
         redirects_df = redirects_df.drop_duplicates(subset=["from_word"], keep="first")
 
-        words_df = pd.DataFrame([w.word for w in self.words], columns=["word"])
-        words_df = words_df.drop_duplicates(subset=["word"], keep="first")
+        meanings_df = pd.DataFrame([w.word for w in self.meanings], columns=["word"])
+        meanings_df = meanings_df.drop_duplicates(subset=["word"], keep="first")
 
         redirects_df = redirects_df.merge(
-            words_df, left_on="to_word", right_on="word", how="inner"
+            meanings_df, left_on="to_word", right_on="word", how="inner"
         )
 
         return [
@@ -118,9 +118,9 @@ class WikiRawStream:
         self.redirects = self.process_redirects()
 
         client = connect("wordsea", host=MONGODB_URL)
-        Word.drop_collection()
+        Meaning.drop_collection()
         Redirect.drop_collection()
 
-        Word.objects.insert(self.words)
+        Meaning.objects.insert(self.meanings)
         Redirect.objects.insert(self.redirects)
         client.close()

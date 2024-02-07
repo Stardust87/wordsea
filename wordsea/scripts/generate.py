@@ -4,12 +4,12 @@ import logging
 from tqdm import tqdm
 
 from wordsea import LLAMACPP_URL
-from wordsea.db import Mnemonic, MongoDB, Word
+from wordsea.db import Meaning, Mnemonic, MongoDB
 from wordsea.dictionary import find_words
 from wordsea.gen import LlamaCppAPI, parse_input_words, render_definition, render_prompt
 
 
-def generate_image_prompts(model: str, entries: dict[str, list[Word]]) -> None:
+def generate_image_prompts(model: str, entries: dict[str, list[Meaning]]) -> None:
     api = LlamaCppAPI(url=LLAMACPP_URL, model=model)
     if not api.health():
         raise RuntimeError("API is not healthy")
