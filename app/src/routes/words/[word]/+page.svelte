@@ -27,5 +27,5 @@
 		{/each}
 	</div>
 
-	<Definition {word} {meanings} />
+	<Definition {meanings} />
 </div>
