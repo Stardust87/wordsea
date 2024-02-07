@@ -31,14 +31,14 @@ class Sense(EmbeddedDocument):
     examples = ListField(EmbeddedDocumentField("Example"))
 
 
-class Word(Document):
-    meta: ClassVar[dict] = {"collection": "words"}
+class Meaning(Document):
+    meta: ClassVar[dict] = {"collection": "meanings"}
     word = StringField(required=True)
     pos = StringField(required=True)
     senses = ListField(EmbeddedDocumentField("Sense"))
 
     @classmethod
-    def from_wiktionary(cls, data: dict[str, Any]) -> "Word":
+    def from_wiktionary(cls, data: dict[str, Any]) -> "Meaning":
         word = data["word"]
         pos = data["pos"]
 

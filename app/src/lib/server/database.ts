@@ -6,4 +6,4 @@ const db = client.db(MONGODB_DB_NAME);
 
 export const gridfs = new GridFSBucket(db);
 export const mnemonics = db.collection("mnemonics");
-export const words = db.collection("words");
+export const meanings = db.collection("meanings");

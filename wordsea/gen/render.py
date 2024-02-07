@@ -4,7 +4,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
 import wordsea
-from wordsea.db import Word
+from wordsea.db import Meaning
 
 TEMPLATES_PATH = Path(wordsea.__file__).parent / "dictionary" / "templates"
 
@@ -22,7 +22,7 @@ def parse_input_words(input_words: list[str]) -> list[str]:
     return sorted(set(complete_words_list))
 
 
-def render_definition(entries: list[Word]) -> str:
+def render_definition(entries: list[Meaning]) -> str:
     env = Environment(loader=FileSystemLoader(TEMPLATES_PATH))
     template = env.get_template("definition.html")
     return template.render(entries=entries)

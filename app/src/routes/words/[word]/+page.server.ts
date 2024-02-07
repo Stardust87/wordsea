@@ -1,4 +1,4 @@
-import { mnemonics, words, gridfs } from "$lib/server/database";
+import { mnemonics, meanings, gridfs } from "$lib/server/database";
 import type { Meaning } from "$lib/types/Meaning.ts";
 
 export const load = async ({ params }) => {
@@ -24,14 +24,14 @@ export const load = async ({ params }) => {
         }
     }
 
-    const meanings_db = await words.find({ word }, { projection: { _id: false } }).toArray();
-    const meanings: Meaning[] = JSON.parse(JSON.stringify(meanings_db));
+    const word_meanings_db = await meanings.find({ word }, { projection: { _id: false } }).toArray();
+    const word_meanings: Meaning[] = JSON.parse(JSON.stringify(word_meanings_db));
 
     return {
         ...params,
         prompt: mnemo?.prompt,
         explanation: mnemo?.explanation,
-        meanings: meanings,
+        meanings: word_meanings,
         images,
     }
 }

@@ -1,4 +1,4 @@
-from .schema import Image, Mnemonic, Word
+from .schema import Image, Meaning, Mnemonic
 from .utils import MongoDB
 
-__all__ = ["Image", "Mnemonic", "Word", "MongoDB"]
+__all__ = ["Image", "Mnemonic", "Meaning", "MongoDB"]
