@@ -4,13 +4,11 @@
 	export let meanings: Meaning[] = [];
 </script>
 
-<ul class="list-inside list-none">
+<span class="text-2xl">{word}</span>
+<ol class="list-roman ml-4 list-inside">
 	{#each meanings as meaning}
 		<li>
-			<span class="text-2xl">
-				{word}
-				<span class="text-xl italic">({meaning.pos})</span>
-			</span>
+			<span class="text-xl italic">{meaning.pos}</span>
 			<ol class="ml-4 list-inside list-decimal">
 				{#each meaning.senses as sense}
 					<li>
@@ -27,4 +25,4 @@
 			</ol>
 		</li>
 	{/each}
-</ul>
+</ol>
