@@ -15,5 +15,6 @@ export interface Meaning {
         comparative?: string;
         superlative?: string;
     };
+    ipa: string;
     }
 

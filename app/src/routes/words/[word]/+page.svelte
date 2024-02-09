@@ -12,6 +12,7 @@
 
 <div>
 	<h1 class="text-5xl">{word}</h1>
+	<p class="py-1 text-xl font-light dark:text-slate-400">{meanings[0].ipa}</p>
 	<p><span class="font-medium"> prompt </span> <span class="italic"> {prompt} </span></p>
 
 	<div class="my-4 flex flex-wrap items-center gap-4">

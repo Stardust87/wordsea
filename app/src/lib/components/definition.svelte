@@ -23,8 +23,8 @@
 <ol class="list-roman max-w-screen-lg list-inside pb-8 pt-4">
 	{#each meanings as meaning}
 		<div
-			class="border-1 m-3 rounded-md border-solid bg-slate-200/30 p-2 shadow-lg
-			shadow-slate-300 hover:bg-slate-200 dark:border-transparent dark:bg-slate-700/50 dark:shadow-sm dark:shadow-slate-700 dark:hover:bg-slate-800/50"
+			class="border-1 my-3 rounded-md border-solid bg-slate-200/30 p-2 shadow-lg
+			shadow-slate-300 hover:bg-slate-200 dark:border-transparent dark:bg-slate-700/50 dark:shadow-sm dark:shadow-slate-700 dark:hover:bg-slate-800/50 dark:hover:shadow-none"
 		>
 			<li>
 				<span class="text-xl italic">{meaning.pos} </span>
