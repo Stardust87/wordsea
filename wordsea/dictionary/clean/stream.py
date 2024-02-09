@@ -6,7 +6,7 @@ import pandas as pd
 from mongoengine import connect
 from tqdm import tqdm
 
-from wordsea import MONGODB_URL
+from wordsea.constants import MONGODB_URL
 from wordsea.db.schema import Meaning, Redirect
 from wordsea.dictionary.clean.constraints import (
     filter_nonaplha_examples,

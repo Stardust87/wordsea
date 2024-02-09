@@ -32,10 +32,6 @@ dev = ["ruff", "mypy"]
 
 [project.scripts]
 wordsea = "wordsea:main"
-wordsea-clean = "wordsea.scripts.clean:main"
-wordsea-find = "wordsea.scripts.find:main"
-wordsea-generate = "wordsea.scripts.generate:main"
-wordsea-imagine = "wordsea.scripts.imagine:main"
 
 [tool.ruff]
 ignore = ["C901", "E501"]

@@ -1,9 +1,7 @@
-import argparse
-import logging
-
+import click
 from tqdm import tqdm
 
-from wordsea import LLAMACPP_URL
+from wordsea.constants import LLAMACPP_URL
 from wordsea.db import Meaning, Mnemonic, MongoDB
 from wordsea.dictionary import find_words
 from wordsea.gen import LlamaCppAPI, parse_input_words, render_definition, render_prompt
@@ -33,33 +31,33 @@ def generate_image_prompts(model: str, entries: dict[str, list[Meaning]]) -> Non
         mnemonic.save()
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "words",
-        nargs="+",
-        type=str,
-        help="words to find - every entity can be either a word or a path to a file with words separated by newlines",
-    )
-    parser.add_argument("-m", "--model", type=str, default="mixtral")
-    parser.add_argument(
-        "-n",
-        "--new",
-        action="store_true",
-        help="whether to generate prompts only for words that are not in the database",
-    )
-    args = parser.parse_args()
+@click.command()
+@click.argument("words", nargs=-1, type=str, required=True)
+@click.option(
+    "-m", "--model", type=str, default="mixtral", help="language model to use"
+)
+@click.option(
+    "-n",
+    "--new",
+    is_flag=True,
+    help="whether to generate prompts only for words that are not in the database",
+)
+def generate(words, model, new) -> None:
+    """Generate image prompts for words.
 
-    words = parse_input_words(args.words)
+    WORDS (list[str]): words to generate prompts for - every entity can be either a word or a path to a file with words separated by newlines
+    """
+
+    words = parse_input_words(words)
 
     with MongoDB():
-        if args.new:
+        if new:
             generated = [mnemo.word for mnemo in Mnemonic.objects(word__in=words)]
             words = [word for word in words if word not in generated]
 
         if not words:
-            logging.info("all prompts are already generated")
+            click.echo("all prompts are already generated")
             exit(0)
 
         entries = find_words(words)
-        generate_image_prompts(args.model, entries)
+        generate_image_prompts(model, entries)

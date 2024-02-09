@@ -1,16 +1,18 @@
+import click
+
 from wordsea.dictionary.clean import WikiRawStream
 
 
-def main() -> None:
-    import argparse
+@click.command(
+    epilog="Download pre-extracted data from https://kaikki.org/dictionary/rawdata.html."
+)
+@click.argument("path", type=click.Path(exists=True))
+def clean(path: str) -> None:
+    """Clean the raw Wiktionary data.
 
-    parser = argparse.ArgumentParser(
-        description="Clean the raw Wiktionary data.",
-        epilog="Download pre-extracted data from https://kaikki.org/dictionary/rawdata.html.",
-    )
-    parser.add_argument("path", type=str, help="path to raw Wiktionary data (JSON)")
-    args = parser.parse_args()
+    PATH (str): path to raw Wiktionary data (JSON)
 
-    stream = WikiRawStream(path=args.path)
+    """
+    stream = WikiRawStream(path=path)
     stream.process()
     stream.export()

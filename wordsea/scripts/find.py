@@ -1,27 +1,23 @@
-import argparse
 import json
-import logging
+
+import click
 
 from wordsea.db import MongoDB
 from wordsea.dictionary import find_words
 from wordsea.gen import parse_input_words
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Find words in JSON dictionary cleaned using `wordsea clean`.",
-    )
-    parser.add_argument(
-        "words",
-        nargs="+",
-        type=str,
-        help="words to find - every entity can be either a word or a path to a file with words separated by newlines",
-    )
-    args = parser.parse_args()
+@click.command()
+@click.argument("words", nargs=-1, type=str, required=True)
+def find(words) -> None:
+    """Find words in JSON dictionary cleaned using `wordsea clean`.
 
-    words = parse_input_words(args.words)
+    WORDS (list[str]): words to find - every entity can be either a word or a path to a file with words separated by newlines
+    """
+
+    words = parse_input_words(words)
 
     with MongoDB():
         entries = find_words(words)
 
-    logging.info(json.dumps(entries, indent=2))
+    click.echo(json.dumps(entries, indent=2))

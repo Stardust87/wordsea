@@ -1,7 +1,6 @@
-import argparse
 import io
-import logging
 
+import click
 import torch
 from tqdm import tqdm
 
@@ -9,20 +8,19 @@ from wordsea.db import Image, Mnemonic, MongoDB
 from wordsea.gen import get_pipeline, parse_input_words
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "words",
-        nargs="+",
-        type=str,
-        help="words to find - every entity can be either a word or a path to a file with words separated by newlines",
-    )
+@click.command()
+@click.argument("words", nargs=-1, type=str, required=True)
+@click.option(
+    "-m", "--model", type=str, default="playground", help="text2image model to use"
+)
+@click.option("-s", "--seed", type=int, default=42, help="random seed")
+def imagine(words, model, seed) -> None:
+    """Generate images for words.
 
-    parser.add_argument("-m", "--model", type=str, default="playground")
-    parser.add_argument("-s", "--seed", type=int, default=42)
+    WORDS: (list[str]): words to generate images for - every entity can be either a word or a path to a file with words separated by newlines
+    """
 
-    args = parser.parse_args()
-    words = parse_input_words(args.words)
+    words = parse_input_words(words)
 
     with MongoDB():
         incomplete_mnemonics = Mnemonic.objects(
@@ -30,14 +28,14 @@ def main() -> None:
         ).order_by("word")
 
         if not incomplete_mnemonics:
-            logging.info("all images are already generated")
+            click.echo("all images are already generated")
 
-        pipe = get_pipeline(args.model)
-        generator = torch.Generator(device="cpu").manual_seed(args.seed)
+        pipe = get_pipeline(model)
+        generator = torch.Generator(device="cpu").manual_seed(seed)
 
         for mnemo in (pbar := tqdm(incomplete_mnemonics, desc="Generating images")):
             pbar.set_postfix_str(mnemo.word)
-            mnemo.image_model = args.model
+            mnemo.image_model = model
 
             output = pipe(  # type: ignore[operator]
                 mnemo.prompt,
