@@ -48,6 +48,7 @@ class Meaning(Document):
     pos = StringField(required=True)
     senses = ListField(EmbeddedDocumentField("Sense"))
     forms = DictField()
+    ipa = StringField()
 
     @classmethod
     def from_wiktionary(cls, data: dict[str, Any]) -> "Meaning":
@@ -71,7 +72,23 @@ class Meaning(Document):
                     forms[form_type] = form["form"]
                     break
 
-        return cls(word=word, pos=pos, senses=senses, forms=forms)
+        preferred_origins = ["US", "General-American", "UK"]
+        all_ipas = [sound for sound in data["sounds"] if "ipa" in sound]
+
+        preffered_ipas = [
+            sound
+            for sound in all_ipas
+            if "tags" in sound and sound["tags"][0] in preferred_origins
+        ]
+        if not preffered_ipas:
+            ipa = all_ipas[0]["ipa"]
+        else:
+            preffered_ipas = sorted(
+                preffered_ipas, key=lambda x: preferred_origins.index(x["tags"][0])
+            )
+            ipa = preffered_ipas[0]["ipa"]
+
+        return cls(word=word, pos=pos, senses=senses, forms=forms, ipa=ipa)
 
 
 class Redirect(Document):
