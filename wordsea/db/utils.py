@@ -2,7 +2,7 @@ from typing import Any
 
 from mongoengine import connect
 
-from wordsea import MONGODB_URL
+from wordsea.constants import MONGODB_URL
 
 
 class MongoDB:
