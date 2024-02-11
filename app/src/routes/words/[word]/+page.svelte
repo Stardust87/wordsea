@@ -14,7 +14,7 @@
 <h1 class="text-5xl">{word}</h1>
 <p class="py-1 text-xl font-light dark:text-slate-400">{meanings[0].ipa}</p>
 
-<div class="flex w-full flex-wrap gap-4 lg:flex-nowrap">
+<div class="flex w-full flex-wrap gap-4 md:flex-nowrap">
 	<MnemonicImages {mnemonics} />
 	<Definition {meanings} />
 </div>

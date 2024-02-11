@@ -20,7 +20,7 @@
 	};
 </script>
 
-<ol class="list-roman min-w-prose list-inside lg:w-7/12">
+<ol class="list-roman min-w-prose list-inside md:w-7/12">
 	{#each meanings as meaning}
 		<div
 			class="border-1 mb-4 rounded-md border-solid bg-slate-100 p-2 shadow-lg
@@ -34,7 +34,7 @@
 					</span>
 				{/if}
 
-				<ol class="ml-6 list-inside list-decimal">
+				<ol class="ml-4 list-inside list-decimal">
 					{#each meaning.senses as sense}
 						<li class="mb-2 text-lg">
 							{sense.gloss}

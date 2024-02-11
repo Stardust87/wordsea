@@ -2,10 +2,10 @@
 	import type { Mnemonic } from '$lib/types/Mnemonic';
 	export let mnemonics: Mnemonic[] = [];
 
-	$: featured = mnemonics[0];
+	let featured = mnemonics[0];
 </script>
 
-<div class="relative mb-4 flex w-full flex-col gap-2 lg:w-5/12">
+<div class="relative mb-4 flex w-full flex-col gap-2 md:w-5/12">
 	<div class="group relative">
 		<img
 			class="group-hover:brightness-25 h-auto max-w-full rounded-lg shadow-lg duration-300"
@@ -15,6 +15,7 @@
 		<div
 			class="absolute inset-x-0 top-0 max-h-full overflow-y-auto p-2 text-slate-300 opacity-0 duration-300 group-hover:opacity-100"
 		>
+			<span class="text-violet-500">{featured.language_model}-{featured.image_model}</span>
 			<p class="font-bold">{featured.prompt}</p>
 			<p class="italic">{featured.explanation.replace('prompt', 'image')}</p>
 		</div>
