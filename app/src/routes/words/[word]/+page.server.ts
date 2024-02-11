@@ -24,7 +24,7 @@ const loadImages = async (images: FSLink[]) => {
 export const load = async ({ params }) => {
 	const { word } = params;
 
-	const word_mnemonics = await mnemonics.find({ word }).toArray();
+	const word_mnemonics = await mnemonics.find({ word }).sort({ $natural: -1 }).limit(5).toArray();
 	for (const mnemonic of word_mnemonics) {
 		mnemonic.images = await loadImages(mnemonic.images);
 	}

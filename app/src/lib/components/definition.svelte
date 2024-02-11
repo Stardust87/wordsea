@@ -20,26 +20,26 @@
 	};
 </script>
 
-<ol class="list-roman max-w-screen-lg list-inside pb-8 pt-4">
+<ol class="list-roman min-w-prose list-inside lg:w-7/12">
 	{#each meanings as meaning}
 		<div
-			class="border-1 my-3 rounded-md border-solid bg-slate-200/30 p-2 shadow-lg
-			shadow-slate-300 hover:bg-slate-200 dark:border-transparent dark:bg-slate-700/50 dark:shadow-sm dark:shadow-slate-700 dark:hover:bg-slate-800/50 dark:hover:shadow-none"
+			class="border-1 mb-4 rounded-md border-solid bg-slate-100 p-2 shadow-lg
+			shadow-slate-200 hover:bg-slate-200 dark:border-transparent dark:bg-slate-700/50 dark:shadow-sm dark:shadow-slate-700 dark:hover:bg-slate-800 dark:hover:shadow-none"
 		>
-			<li>
-				<span class="text-xl italic">{meaning.pos} </span>
+			<li class="text-xl">
+				<span class="italic">{meaning.pos} </span>
 				{#if filterForms(meaning.forms, meaning.pos).length > 0}
-					<span class="text-lg italic text-slate-800 dark:text-slate-400">
+					<span class="text-lg italic text-slate-600 dark:text-slate-400">
 						&mdash; {filterForms(meaning.forms, meaning.pos)}
 					</span>
 				{/if}
 
-				<ol class="ml-4 list-inside list-decimal">
+				<ol class="ml-6 list-inside list-decimal">
 					{#each meaning.senses as sense}
-						<li>
+						<li class="mb-2 text-lg">
 							{sense.gloss}
 							{#if sense.examples}
-								<ul class="ml-8 list-inside list-disc">
+								<ul class="ml-4 list-inside list-disc text-base text-slate-600 dark:text-slate-400">
 									{#each sense.examples as example}
 										<li>{example.text}</li>
 									{/each}
