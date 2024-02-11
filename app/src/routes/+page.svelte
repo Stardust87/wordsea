@@ -3,8 +3,7 @@
 	import ThemeSwitch from '$lib/components/themeSwitch.svelte';
 
 	export let data;
-	const { availableWords } = data;
 </script>
 
 <ThemeSwitch />
-<WordsList words={availableWords} />
+<WordsList words={data.availableWords} />
