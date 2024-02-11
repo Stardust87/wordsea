@@ -9,6 +9,11 @@ export default {
       decimal: 'decimal',
       square: 'square',
       roman: 'upper-roman',
+    },
+    brightness: {
+      25: '.25',
+      50: '.50',
+      100: '1',
     }
   },
   darkMode: 'class',
