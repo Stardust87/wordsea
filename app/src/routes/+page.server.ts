@@ -1,10 +1,9 @@
-import { mnemonics } from "$lib/server/database";
+import { mnemonics } from '$lib/server/database';
 
-export const load = async ({ params }) => {
-    const availableWords = await mnemonics.distinct("word");
+export const load = async () => {
+	const availableWords: string[] = await mnemonics.distinct('word');
 
-    return {
-        ...params,
-        availableWords,
-    }
-}
+	return {
+		availableWords
+	};
+};
