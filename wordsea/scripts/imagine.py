@@ -13,7 +13,7 @@ from wordsea.gen import get_pipeline, parse_input_words
 @click.option(
     "-m", "--model", type=str, default="playground", help="text2image model to use"
 )
-@click.option("-s", "--seed", type=int, default=42, help="random seed")
+@click.option("-s", "--seed", type=int, help="random seed")
 def imagine(words, model, seed) -> None:
     """Generate images for words.
 
@@ -31,7 +31,10 @@ def imagine(words, model, seed) -> None:
             click.echo("all images are already generated")
 
         pipe = get_pipeline(model)
-        generator = torch.Generator(device="cpu").manual_seed(seed)
+
+        generator = torch.Generator(device="cpu").manual_seed(
+            torch.seed() if seed is None else seed
+        )
 
         for mnemo in (pbar := tqdm(incomplete_mnemonics, desc="Generating images")):
             pbar.set_postfix_str(mnemo.word)
@@ -42,7 +45,7 @@ def imagine(words, model, seed) -> None:
                 num_inference_steps=30,
                 generator=generator,
                 guidance_scale=4.5,
-                num_images_per_prompt=2,
+                num_images_per_prompt=1,
             )
 
             for image in output.images:

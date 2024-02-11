@@ -42,7 +42,14 @@ def generate_image_prompts(model: str, entries: dict[str, list[Meaning]]) -> Non
     is_flag=True,
     help="whether to generate prompts only for words that are not in the database",
 )
-def generate(words, model, new) -> None:
+@click.option(
+    "-l",
+    "--limit",
+    type=int,
+    default=5,
+    help="generate prompts for words with less than this number of images",
+)
+def generate(words, model, new, limit) -> None:
     """Generate image prompts for words.
 
     WORDS (list[str]): words to generate prompts for - every entity can be either a word or a path to a file with words separated by newlines
@@ -54,6 +61,11 @@ def generate(words, model, new) -> None:
         if new:
             generated = [mnemo.word for mnemo in Mnemonic.objects(word__in=words)]
             words = [word for word in words if word not in generated]
+
+        if limit is not None:
+            words = [
+                word for word in words if Mnemonic.objects(word=word).count() < limit
+            ]
 
         if not words:
             click.echo("all prompts are already generated")
