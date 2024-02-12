@@ -24,8 +24,13 @@
 	{#each meanings as meaning}
 		<div
 			class="border-1 mb-4 rounded-md border-solid bg-slate-100 p-2 shadow-lg
-			shadow-slate-200 hover:bg-slate-200 dark:border-transparent dark:bg-slate-700/50 dark:shadow-sm dark:shadow-slate-700 dark:hover:bg-slate-800 dark:hover:shadow-none"
+			shadow-slate-200 dark:border-transparent dark:bg-slate-700/50 dark:shadow-sm dark:shadow-slate-700"
 		>
+			<!-- <div
+			class="border-1 mb-4 rounded-md border-solid bg-slate-100 p-2 shadow-lg
+			shadow-slate-200 hover:bg-slate-200 dark:border-transparent dark:bg-slate-700/50 dark:shadow-sm dark:shadow-slate-700 dark:hover:bg-slate-800 dark:hover:shadow-none"
+		> -->
+
 			<li class="text-xl">
 				<span class="italic">{meaning.pos} </span>
 				{#if filterForms(meaning.forms, meaning.pos).length > 0}

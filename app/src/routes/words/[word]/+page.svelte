@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Definition from '$lib/components/definition.svelte';
-	import ThemeSwitch from '$lib/components/themeSwitch.svelte';
 	import MnemonicImages from '$lib/components/mnemonicImages.svelte';
 	import RecordingPlayer from '$lib/components/recordingPlayer.svelte';
 
@@ -9,9 +8,6 @@
 	$: ({ word, mnemonics, meanings } = data);
 </script>
 
-<ThemeSwitch />
-
-<a class="mt-4 block text-lg text-violet-600 underline" href="/">Home</a>
 <h1 class="text-5xl">{word}</h1>
 {#if meanings[0].audio}
 	<RecordingPlayer audioUrl={meanings[0].audio} ipa={meanings[0].ipa} />
