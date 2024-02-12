@@ -19,4 +19,5 @@ export interface Meaning {
 		superlative?: string;
 	};
 	ipa: string;
+	audio: string;
 }

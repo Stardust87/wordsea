@@ -49,6 +49,7 @@ class Meaning(Document):
     senses = ListField(EmbeddedDocumentField("Sense"))
     forms = DictField()
     ipa = StringField()
+    audio = StringField()
 
     @classmethod
     def from_wiktionary(cls, data: dict[str, Any]) -> "Meaning":
@@ -88,7 +89,14 @@ class Meaning(Document):
             )
             ipa = preffered_ipas[0]["ipa"]
 
-        return cls(word=word, pos=pos, senses=senses, forms=forms, ipa=ipa)
+        audio = [sound["mp3_url"] for sound in data["sounds"] if "mp3_url" in sound]
+
+        if audio:
+            audio = next(iter(audio))
+        else:
+            audio = None
+
+        return cls(word=word, pos=pos, senses=senses, forms=forms, ipa=ipa, audio=audio)
 
 
 class Redirect(Document):
