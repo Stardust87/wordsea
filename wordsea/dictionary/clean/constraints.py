@@ -17,7 +17,7 @@ def filter_nonaplha_examples(examples: list[dict[str, Any]]) -> list[dict[str, A
 
 
 def has_raw_tag_to_skip(
-    sense: dict[str, Any], skip_raw_tags: tuple = ("obsolete", "archaic", "slang")
+    sense: dict[str, Any], skip_raw_tags: tuple = ("obsolete", "slang")
 ) -> bool:
     gloss_tag = re.search(r"\((.*?)\)", sense["raw_glosses"][0])
     gloss_tag = gloss_tag.group(1) if gloss_tag else None

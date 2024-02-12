@@ -50,9 +50,9 @@ def imagine(words, model, seed) -> None:
 
             for image in output.images:
                 with io.BytesIO() as buf:
-                    image.save(buf, format="JPEG")
+                    image.save(buf, format="webp", optimize=True, quality=85)
                     image_db = Image()
-                    image_db.data.put(buf.getvalue(), content_type="image/jpeg")
+                    image_db.data.put(buf.getvalue(), content_type="image/webp")
                     mnemo.images.append(image_db)
 
             mnemo.save()

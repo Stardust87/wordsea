@@ -60,7 +60,11 @@ class Meaning(Document):
         for sense in data["senses"]:
             gloss = sense["glosses"][0]
             raw_gloss = sense["raw_glosses"][0] if "raw_glosses" in sense else None
-            examples = [Example.from_wiktionary(ex) for ex in sense.get("examples", [])]
+            examples = [
+                Example.from_wiktionary(ex)
+                for ex in sense.get("examples", [])
+                if len(ex["text"]) < 240
+            ]
             senses.append(Sense(gloss=gloss, raw_gloss=raw_gloss, examples=examples))
 
         forms = {}

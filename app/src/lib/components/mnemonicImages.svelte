@@ -9,7 +9,7 @@
 	<div class="group relative">
 		<img
 			class="group-hover:brightness-25 h-auto max-w-full rounded-lg shadow-lg duration-300"
-			src="data:image/png;base64,{featured.images[0]}"
+			src="data:image/webp;base64,{featured.images[0]}"
 			alt={featured.prompt}
 		/>
 		<div
@@ -26,7 +26,7 @@
 				<button class="h-auto max-w-full" on:click={() => (featured = mnemo)}>
 					<img
 						class=" rounded-lg shadow-lg duration-300 hover:brightness-50"
-						src="data:image/png;base64,{mnemo.images[0]}"
+						src="data:image/webp;base64,{mnemo.images[0]}"
 						alt={mnemo.prompt}
 					/></button
 				>
