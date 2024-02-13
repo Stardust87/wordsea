@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url('https://rsms.me/inter/inter.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,4 +8,9 @@
 body {
     transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
     @apply bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-300;  }
-  
+
+@layer base {
+    html {
+        font-family: "Inter var", system-ui, sans-serif;
+    }
+    }

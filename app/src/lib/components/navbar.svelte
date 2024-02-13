@@ -3,11 +3,11 @@
 </script>
 
 <nav
-	class="max-w-screen border-b-2 border-slate-200 bg-slate-100/50 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+	class="max-w-screen border-b-2 border-slate-200 bg-slate-50 shadow-sm dark:border-slate-700 dark:bg-slate-800"
 >
-	<div class="container mx-auto flex flex-wrap items-center justify-between px-2 py-1 lg:px-8">
+	<div class="container mx-auto flex flex-wrap items-center justify-between px-2 pt-1 lg:px-8">
 		<a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
-			<span class="self-center whitespace-nowrap text-3xl font-semibold text-violet-400"
+			<span class="self-center whitespace-nowrap text-3xl font-semibold text-violet-500"
 				>WordSea</span
 			>
 		</a>
