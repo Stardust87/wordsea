@@ -23,17 +23,19 @@ const loadImages = async (images: FSLink[]) => {
 
 export const load = async ({ params }) => {
 	const { word } = params;
+	const word_meanings = await meanings.find({ word }).toArray();
 
 	const word_mnemonics = await mnemonics.find({ word }).sort({ $natural: -1 }).limit(5).toArray();
-	for (const mnemonic of word_mnemonics) {
-		mnemonic.images = await loadImages(mnemonic.images);
+	if (word_mnemonics.length > 0) {
+		for (const mnemonic of word_mnemonics) {
+			mnemonic.images = await loadImages(mnemonic.images);
+		}
 	}
-
-	const word_meanings = await meanings.find({ word }).toArray();
 
 	return {
 		...params,
-		mnemonics: JSON.parse(JSON.stringify(word_mnemonics)) as Array<Mnemonic>,
-		meanings: JSON.parse(JSON.stringify(word_meanings)) as Array<Meaning>
+		mnemonics: word_mnemonics.length > 0 ? JSON.parse(JSON.stringify(word_mnemonics)) as Array<Mnemonic> : [],
+		meanings: word_meanings.length > 0 ? JSON.parse(JSON.stringify(word_meanings)) as Array<Meaning> : []
 	};
 };
+

@@ -9,13 +9,22 @@
 </script>
 
 <h1 class="text-5xl">{word}</h1>
-{#if meanings[0].audio}
-	<RecordingPlayer audioUrl={meanings[0].audio} ipa={meanings[0].ipa} />
-{:else}
-	<p class="pb-2 pt-1 text-xl font-light text-slate-600 dark:text-slate-400">{meanings[0].ipa}</p>
-{/if}
 
-<div class="flex w-full flex-wrap gap-4 md:flex-nowrap">
-	<MnemonicImages {mnemonics} />
-	<Definition {meanings} />
-</div>
+{#if meanings.length < 1}
+	<p class="pb-2 pt-1 text-xl font-light text-slate-600 dark:text-slate-400">No meanings found</p>
+{:else}
+	{#if meanings[0].audio && meanings[0].ipa}
+		<RecordingPlayer audioUrl={meanings[0].audio} ipa={meanings[0].ipa} />
+	{:else if meanings[0].ipa}
+		<p class="pb-2 pt-1 text-xl font-light text-slate-600 dark:text-slate-400">{meanings[0].ipa}</p>
+	{:else}
+		<p class="pb-2 pt-1"></p>
+	{/if}
+
+	<div class="flex w-full flex-wrap gap-4 md:flex-nowrap">
+		{#if mnemonics.length > 0}
+			<MnemonicImages {mnemonics} />
+		{/if}
+		<Definition {meanings} />
+	</div>
+{/if}

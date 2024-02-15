@@ -58,16 +58,5 @@ def is_redirect(entry: dict[str, Any]) -> bool:
     return "redirect" in entry
 
 
-def has_phonetics(entry: dict[str, Any]) -> bool:
-    if "sounds" not in entry:
-        return False
-
-    for sound in entry["sounds"]:
-        if "ipa" in sound:
-            return True
-
-    return False
-
-
 def is_vulgar(entry: dict[str, Any]) -> bool:
     return "vulgar" in entry.get("tags", []) or "fuck" in entry["word"]

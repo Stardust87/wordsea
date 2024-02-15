@@ -1,4 +1,4 @@
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 
 from mongoengine import (
     DictField,
@@ -51,6 +51,39 @@ class Meaning(Document):
     ipa = StringField()
     audio = StringField()
 
+    @staticmethod
+    def extract_phonetics(data: dict[str, Any]) -> tuple[Optional[str], Optional[str]]:
+        """Extract phonetic transcription and audio URL from Wiktionary data."""
+
+        if "sounds" not in data:
+            return None, None
+
+        preferred_origins = ["US", "General-American", "UK"]
+        all_ipas = [sound for sound in data["sounds"] if "ipa" in sound]
+        if not all_ipas:
+            ipa = None
+        else:
+            preffered_ipas = [
+                sound
+                for sound in all_ipas
+                if "tags" in sound and sound["tags"][0] in preferred_origins
+            ]
+            if not preffered_ipas:
+                ipa = all_ipas[0]["ipa"]
+            else:
+                preffered_ipas = sorted(
+                    preffered_ipas, key=lambda x: preferred_origins.index(x["tags"][0])
+                )
+                ipa = preffered_ipas[0]["ipa"]
+
+        audio = [sound["mp3_url"] for sound in data["sounds"] if "mp3_url" in sound]
+        if audio:
+            audio = audio[0]
+        else:
+            audio = None
+
+        return ipa, audio
+
     @classmethod
     def from_wiktionary(cls, data: dict[str, Any]) -> "Meaning":
         word = data["word"]
@@ -77,28 +110,7 @@ class Meaning(Document):
                     forms[form_type] = form["form"]
                     break
 
-        preferred_origins = ["US", "General-American", "UK"]
-        all_ipas = [sound for sound in data["sounds"] if "ipa" in sound]
-
-        preffered_ipas = [
-            sound
-            for sound in all_ipas
-            if "tags" in sound and sound["tags"][0] in preferred_origins
-        ]
-        if not preffered_ipas:
-            ipa = all_ipas[0]["ipa"]
-        else:
-            preffered_ipas = sorted(
-                preffered_ipas, key=lambda x: preferred_origins.index(x["tags"][0])
-            )
-            ipa = preffered_ipas[0]["ipa"]
-
-        audio = [sound["mp3_url"] for sound in data["sounds"] if "mp3_url" in sound]
-
-        if audio:
-            audio = next(iter(audio))
-        else:
-            audio = None
+        ipa, audio = cls.extract_phonetics(data)
 
         return cls(word=word, pos=pos, senses=senses, forms=forms, ipa=ipa, audio=audio)
 

@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import pandas as pd
 from mongoengine import connect
@@ -11,18 +11,22 @@ from wordsea.db.schema import Meaning, Redirect
 from wordsea.dictionary.clean.constraints import (
     filter_nonaplha_examples,
     has_correct_word,
-    has_phonetics,
     has_raw_tag_to_skip,
     is_language,
     is_redirect,
     is_vulgar,
     starts_with_number,
 )
+from wordsea.gen import parse_input_words
 
 
 class WikiRawStream:
-    def __init__(self, path: str):
+    def __init__(self, path: str, words_subset_path: Optional[str] = None):
         self.path = Path(path)
+        self.words_subset = (
+            parse_input_words([words_subset_path]) if words_subset_path else []
+        )
+        print(len(self.words_subset))
         self.redirects: list[Redirect] = []
         self.meanings: list[Meaning] = []
 
@@ -75,9 +79,10 @@ class WikiRawStream:
                         "n_valid": f"{len(self.meanings)/1000:.1f}K",
                     }
                 )
-
                 entry = json.loads(line)
 
+                if self.words_subset and entry["word"] not in self.words_subset:
+                    continue
                 if is_redirect(entry):
                     self.redirects.append(
                         Redirect(from_word=entry["title"], to_word=entry["redirect"])
@@ -86,8 +91,6 @@ class WikiRawStream:
                 if not is_language(entry):
                     continue
                 if not has_correct_word(entry):
-                    continue
-                if not has_phonetics(entry):
                     continue
                 if is_vulgar(entry):
                     continue
