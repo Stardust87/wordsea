@@ -22,15 +22,7 @@
 
 <ol class="list-roman min-w-prose list-inside md:w-7/12">
 	{#each meanings as meaning}
-		<div
-			class="border-1 mb-4 rounded-md border-solid bg-slate-200/70 p-2 shadow-lg
-			shadow-slate-300 dark:border-transparent dark:bg-slate-700/50 dark:shadow-sm dark:shadow-slate-700"
-		>
-			<!-- <div
-			class="border-1 mb-4 rounded-md border-solid bg-slate-100 p-2 shadow-lg
-			shadow-slate-200 hover:bg-slate-200 dark:border-transparent dark:bg-slate-700/50 dark:shadow-sm dark:shadow-slate-700 dark:hover:bg-slate-800 dark:hover:shadow-none"
-		> -->
-
+		<div class="mb-4 rounded-md bg-slate-50 p-2 shadow-md dark:bg-slate-700/50 dark:shadow-sm">
 			<li class="text-xl">
 				<span class="italic">{meaning.pos} </span>
 				{#if filterForms(meaning.forms, meaning.pos).length > 0}

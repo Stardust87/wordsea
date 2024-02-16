@@ -27,9 +27,13 @@
 	}
 </script>
 
-<div>
-	<input checked={darkMode} on:click={handleSwitchDarkMode} type="checkbox" id="theme-toggle" />
-	<label for="theme-toggle" />
+<div class="pt-1">
+	<input
+		checked={darkMode}
+		on:click={handleSwitchDarkMode}
+		type="checkbox"
+		id="theme-toggle"
+	/><label for="theme-toggle" />
 </div>
 
 <style lang="postcss">
@@ -38,7 +42,7 @@
 	}
 
 	#theme-toggle + label {
-		@apply inline-block size-8 cursor-pointer rounded-full duration-300 content-[''];
+		@apply inline-block size-6 cursor-pointer rounded-full duration-300 content-[''];
 	}
 
 	#theme-toggle:not(:checked) + label {
@@ -47,6 +51,6 @@
 
 	#theme-toggle:checked + label {
 		@apply bg-transparent;
-		box-shadow: inset -12px -10px 1px 1px #ddd;
+		box-shadow: inset -8px -6px 1px 1px #ddd;
 	}
 </style>

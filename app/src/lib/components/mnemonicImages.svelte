@@ -16,8 +16,8 @@
 			class="absolute inset-x-0 top-0 max-h-full overflow-y-auto p-2 text-slate-300 opacity-0 duration-300 group-hover:opacity-100"
 		>
 			<span class="text-violet-500">{featured.language_model}-{featured.image_model}</span>
-			<p class="font-bold">{featured.prompt}</p>
-			<p class="italic">{featured.explanation.replace('prompt', 'image')}</p>
+			<p class="italic">{featured.prompt}</p>
+			<p class="font-bold">{featured.explanation.replace('prompt', 'image')}</p>
 		</div>
 	</div>
 	<div class="grid grid-cols-4 gap-2">
@@ -25,7 +25,7 @@
 			{#if mnemo._id !== featured._id}
 				<button class="h-auto max-w-full" on:click={() => (featured = mnemo)}>
 					<img
-						class=" rounded-lg shadow-lg duration-300 hover:brightness-50"
+						class="rounded-lg shadow-md duration-300 hover:brightness-50"
 						src="data:image/webp;base64,{mnemo.images[0]}"
 						alt={mnemo.prompt}
 					/></button
