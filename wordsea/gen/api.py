@@ -21,12 +21,12 @@ numberlist ::= "["   ws   "]" | "["   ws   string   (","   ws   number)*   ws   
 @dataclass
 class LLMParams:
     n_predict: int = 1024
-    temperature: float = 0.7
+    temperature: float = 0.8
     top_p: float = 1.0
     top_k: int = 40
     min_p: float = 0.02
     presence_penalty: float = 0.0
-    dynatemp_range: float = 0.0
+    dynatemp_range: float = 0.3
     frequency_penalty: float = 0.0
     repeat_penalty: float = 1.0
     penalize_nl: bool = False
@@ -38,7 +38,7 @@ class LLMParams:
 
 
 MixtralParams = LLMParams(
-    template="[INST] {prompt} [/INST]", dynatemp_range=0.3, temperature=0.8
+    template="[INST] {prompt} [/INST]", dynatemp_range=0.5, temperature=0.7
 )
 MistralParams = LLMParams(template="[INST] {prompt} [/INST]")
 YiParams = LLMParams(

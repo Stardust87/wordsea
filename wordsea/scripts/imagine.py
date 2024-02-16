@@ -41,11 +41,13 @@ def imagine(words, model, seed) -> None:
             mnemo.image_model = model
 
             output = pipe(  # type: ignore[operator]
-                mnemo.prompt,
-                num_inference_steps=30,
+                prompt=mnemo.prompt,
+                num_inference_steps=20,
                 generator=generator,
                 guidance_scale=4.5,
                 num_images_per_prompt=1,
+                height=1024,
+                width=1024,
             )
 
             for image in output.images:

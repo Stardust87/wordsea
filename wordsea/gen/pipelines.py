@@ -1,5 +1,39 @@
 import torch
-from diffusers import DiffusionPipeline
+from diffusers import (
+    DiffusionPipeline,
+    StableCascadeDecoderPipeline,
+    StableCascadePriorPipeline,
+)
+
+
+class StableCascadePipeline:
+    def __init__(self) -> None:
+        self.prior = StableCascadePriorPipeline.from_pretrained(
+            "stabilityai/stable-cascade-prior", torch_dtype=torch.bfloat16
+        )
+        self.decoder = StableCascadeDecoderPipeline.from_pretrained(
+            "stabilityai/stable-cascade", torch_dtype=torch.float16
+        )
+
+    def set_progress_bar_config(self, disable: bool) -> None:
+        self.prior.set_progress_bar_config(disable=disable)
+        self.decoder.set_progress_bar_config(disable=disable)
+
+    def to(self, device: str) -> "StableCascadePipeline":
+        self.prior.to(device)
+        self.decoder.to(device)
+        return self
+
+    def __call__(self, **kwargs) -> torch.Tensor:
+        prior_output = self.prior(**kwargs)
+        return self.decoder(
+            prior_output.image_embeddings.half(),
+            prompt=kwargs["prompt"],
+            negative_prompt=kwargs.get("negative_prompt", None),
+            output_type="pil",
+            num_inference_steps=10,
+            guidance_scale=0.0,
+        )
 
 
 def get_pipeline(model: str) -> DiffusionPipeline:
@@ -16,6 +50,9 @@ def get_pipeline(model: str) -> DiffusionPipeline:
             )
 
             pipe.fuse_qkv_projections()
+
+        case "cascade":
+            pipe = StableCascadePipeline()
 
         case _:
             raise ValueError(f"model not supported: {model}")
