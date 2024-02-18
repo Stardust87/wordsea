@@ -2,7 +2,7 @@
 	import type { Mnemonic } from '$lib/types/Mnemonic';
 	export let mnemonics: Mnemonic[] = [];
 
-	let featured = mnemonics[0];
+	$: featured = mnemonics[0];
 </script>
 
 <div class="relative mb-4 flex w-full flex-col gap-2 md:w-5/12">
