@@ -2,6 +2,7 @@ from typing import Optional
 
 import click
 
+from wordsea.db import MongoDB
 from wordsea.dictionary.clean import WikiRawStream
 
 
@@ -16,7 +17,8 @@ from wordsea.dictionary.clean import WikiRawStream
     help="Path to a file with words to process. If not provided, all words will be processed.",
     default=None,
 )
-def clean(path: str, words_subset_path: Optional[str]) -> None:
+@click.option("-i", "--index", is_flag=True, help="Create a Typesense index.")
+def clean(path: str, words_subset_path: Optional[str], index: bool) -> None:
     """Clean the raw Wiktionary data.
 
     PATH (str): path to raw Wiktionary data (JSON)
@@ -24,4 +26,8 @@ def clean(path: str, words_subset_path: Optional[str]) -> None:
     """
     stream = WikiRawStream(path=path, words_subset_path=words_subset_path)
     stream.process()
-    stream.export()
+
+    with MongoDB():
+        stream.export()
+        if index:
+            stream.index()

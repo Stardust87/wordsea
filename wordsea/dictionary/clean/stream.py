@@ -3,10 +3,8 @@ from pathlib import Path
 from typing import Any, Optional
 
 import pandas as pd
-from mongoengine import connect
 from tqdm import tqdm
 
-from wordsea.constants import MONGODB_URL
 from wordsea.db.schema import Meaning, Redirect
 from wordsea.dictionary.clean.constraints import (
     filter_nonalpha_examples,
@@ -16,6 +14,7 @@ from wordsea.dictionary.clean.constraints import (
     is_vulgar,
     starts_with_number,
 )
+from wordsea.dictionary.clean.index import create_typesense_index
 from wordsea.gen import parse_input_words
 
 
@@ -119,10 +118,11 @@ class WikiRawStream:
     def export(self) -> None:
         self.redirects = self.process_redirects()
 
-        client = connect("wordsea", host=MONGODB_URL)
         Meaning.drop_collection()
         Redirect.drop_collection()
 
         Meaning.objects.insert(self.meanings)
         Redirect.objects.insert(self.redirects)
-        client.close()
+
+    def index(self) -> None:
+        create_typesense_index()

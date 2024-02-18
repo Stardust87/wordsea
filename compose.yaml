@@ -4,12 +4,21 @@ services:
     ports:
       - 27017:27017
 
+  typesense:
+    image: typesense/typesense:0.25.2
+    ports:
+      - 8108:8108
+    restart: on-failure
+    volumes:
+      - ./typesense-data:/data
+    environment:
+      - TYPESENSE_ENABLE_CORS=true
+    command: '--data-dir /data --api-key=xyz --enable-cors'
+
   app:
     build:
       context: ./app
       dockerfile: Dockerfile
-    environment:
-      - MONGODB_URL=mongodb://mongo:27017
     volumes:
       - ./app:/app
     ports:

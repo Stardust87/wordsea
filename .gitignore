@@ -1,5 +1,5 @@
 logs/
-data/
+typesense-data/
 
 .ruff_cache
 .DS_Store
