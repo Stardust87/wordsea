@@ -12,6 +12,7 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
+		"@svelte-put/clickoutside": "^3.0.1",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
@@ -35,7 +36,11 @@
 		"vite": "^5.0.3"
 	},
 	"dependencies": {
-		"mongodb": "^6.3.0"
+		"@babel/runtime": "^7.23.9",
+		"algoliasearch": "^4.22.1",
+		"instantsearch.js": "^4.65.0",
+		"mongodb": "^6.3.0",
+		"typesense-instantsearch-adapter": "^2.7.1"
 	},
 	"type": "module"
 }

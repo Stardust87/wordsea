@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ThemeSwitch from './themeSwitch.svelte';
+	import Search from './search.svelte';
 </script>
 
 <nav
@@ -10,6 +11,7 @@
 			<img src="/logo.png" class="h-8" alt="WordSea Logo" />
 			<span class="self-center whitespace-nowrap text-xl font-semibold">WordSea</span>
 		</a>
+		<Search />
 		<ThemeSwitch />
 	</div>
 </nav>
