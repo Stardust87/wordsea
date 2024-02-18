@@ -9,9 +9,8 @@ from tqdm import tqdm
 from wordsea.constants import MONGODB_URL
 from wordsea.db.schema import Meaning, Redirect
 from wordsea.dictionary.clean.constraints import (
-    filter_nonaplha_examples,
+    filter_nonalpha_examples,
     has_correct_word,
-    has_raw_tag_to_skip,
     is_language,
     is_redirect,
     is_vulgar,
@@ -24,9 +23,11 @@ class WikiRawStream:
     def __init__(self, path: str, words_subset_path: Optional[str] = None):
         self.path = Path(path)
         self.words_subset = (
-            parse_input_words([words_subset_path]) if words_subset_path else []
+            {word: True for word in parse_input_words([words_subset_path])}
+            if words_subset_path
+            else {}
         )
-        print(len(self.words_subset))
+
         self.redirects: list[Redirect] = []
         self.meanings: list[Meaning] = []
 
@@ -47,24 +48,20 @@ class WikiRawStream:
             elif "glosses" not in sense:
                 continue
 
-            elif "raw_glosses" in sense:
-                if has_raw_tag_to_skip(sense):
-                    continue
-
             gloss = sense["glosses"][0]
 
             if gloss not in new_senses:
                 if starts_with_number(gloss):
                     continue
                 if "examples" in sense:
-                    sense["examples"] = filter_nonaplha_examples(sense["examples"])
+                    sense["examples"] = filter_nonalpha_examples(sense["examples"])
                 else:
                     sense["examples"] = []
                 new_senses[gloss] = sense
             else:
                 if "examples" in sense:
                     new_senses[gloss]["examples"].extend(
-                        filter_nonaplha_examples(sense["examples"])
+                        filter_nonalpha_examples(sense["examples"])
                     )
 
         return list(new_senses.values())
