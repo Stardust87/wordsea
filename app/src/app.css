@@ -6,7 +6,6 @@
 @tailwind utilities;
 
 body {
-    /* @apply bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-300;  } */
     @apply bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-300;  }
 
 @layer base {
