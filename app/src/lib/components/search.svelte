@@ -130,8 +130,11 @@
 				if (currentFocusedIndex === -1 && event.key === 'ArrowUp') {
 					nextIndex += 1;
 				}
-
-				hits[nextIndex]?.focus();
+				if (currentFocusedIndex === 0 && event.key === 'ArrowUp') {
+					searchForm.querySelector('input')?.focus();
+				} else {
+					hits[nextIndex]?.focus();
+				}
 			}
 
 			if (event.key === 'Escape') {

@@ -23,6 +23,7 @@ dependencies = [
     "tqdm",
     "torch~=2.1.2",
     "transformers",
+    "typesense",
 ]
 requires-python = ">=3.10"
 description = "Expand your vocabulary with wordsea!"
