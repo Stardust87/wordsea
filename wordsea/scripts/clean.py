@@ -17,17 +17,21 @@ from wordsea.dictionary.clean import WikiRawStream
     help="Path to a file with words to process. If not provided, all words will be processed.",
     default=None,
 )
-@click.option("-i", "--index", is_flag=True, help="Create a Typesense index.")
-def clean(path: str, words_subset_path: Optional[str], index: bool) -> None:
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Do not write to the database or Typesense.",
+)
+def clean(path: str, words_subset_path: Optional[str], dry_run: bool) -> None:
     """Clean the raw Wiktionary data.
 
     PATH (str): path to raw Wiktionary data (JSON)
 
     """
-    stream = WikiRawStream(path=path, words_subset_path=words_subset_path)
+    stream = WikiRawStream(path, words_subset_path)
     stream.process()
 
-    with MongoDB():
-        stream.export()
-        if index:
+    if not dry_run:
+        with MongoDB():
+            stream.export()
             stream.index()

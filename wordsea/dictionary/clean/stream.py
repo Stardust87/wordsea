@@ -19,7 +19,11 @@ from wordsea.gen import parse_input_words
 
 
 class WikiRawStream:
-    def __init__(self, path: str, words_subset_path: Optional[str] = None):
+    def __init__(
+        self,
+        path: str,
+        words_subset_path: Optional[str] = None,
+    ):
         self.path = Path(path)
         self.words_subset = (
             {word: True for word in parse_input_words([words_subset_path])}
@@ -29,6 +33,7 @@ class WikiRawStream:
 
         self.redirects: list[Redirect] = []
         self.meanings: list[Meaning] = []
+        self.derived: dict[str, str] = {}  # derived word -> base word
 
     def filter_senses(
         self, word: str, senses: list[dict[str, Any]]
@@ -65,7 +70,26 @@ class WikiRawStream:
 
         return list(new_senses.values())
 
+    def find_derived(self) -> None:
+        with self.path.open(encoding="utf-8") as raw_file:
+            pbar = tqdm(raw_file, desc="Finding derived words")
+            for line in pbar:
+                pbar.set_postfix(
+                    {
+                        "n_derived": f"{len(self.derived)/1000:.1f}K",
+                    }
+                )
+                entry = json.loads(line)
+
+                if entry.get("word", None) in self.words_subset:
+                    for derived in entry.get("derived", []):
+                        if "word" in derived:
+                            if derived["word"] not in self.words_subset:
+                                self.derived[derived["word"]] = entry["word"]
+
     def process(self) -> None:
+        self.find_derived()
+
         with self.path.open(encoding="utf-8") as raw_file:
             pbar = tqdm(enumerate(raw_file), desc="Cleaning")
             for idx, line in pbar:
@@ -78,7 +102,10 @@ class WikiRawStream:
                 entry = json.loads(line)
 
                 if self.words_subset and entry["word"] not in self.words_subset:
-                    continue
+                    if entry.get("word", None) in self.derived:
+                        entry["derived_from"] = self.derived[entry["word"]]
+                    else:
+                        continue
                 if is_redirect(entry):
                     self.redirects.append(
                         Redirect(from_word=entry["title"], to_word=entry["redirect"])

@@ -1,5 +1,6 @@
-import re
 from typing import Any
+
+import regex as re
 
 
 def starts_with_number(gloss: str) -> bool:
@@ -24,13 +25,16 @@ def has_correct_word(entry: dict[str, Any]) -> bool:
     if "word" not in entry:
         return False
 
-    letters = re.sub(r"[^A-Za-z]+", "", entry["word"])
-    first_letter = entry["word"][0]
+    word = entry["word"]
+    letters = re.sub(r"[^\p{Ll}]+", "", word)
+    first_letter = word[0]
+    last_letter = word[-1]
     return all(
         [
             len(letters) >= 3,
-            len(letters) == len(entry["word"]),
+            len(letters) == len(word),
             not first_letter.isupper(),
+            last_letter.isalpha(),
         ]
     )
 

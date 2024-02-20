@@ -50,6 +50,7 @@ class Meaning(Document):
     forms = DictField()
     ipa = StringField()
     audio = StringField()
+    derived_from = StringField()
 
     @staticmethod
     def extract_phonetics(data: dict[str, Any]) -> tuple[Optional[str], Optional[str]]:
@@ -111,8 +112,17 @@ class Meaning(Document):
                     break
 
         ipa, audio = cls.extract_phonetics(data)
+        derived_from = data.get("derived_from", None)
 
-        return cls(word=word, pos=pos, senses=senses, forms=forms, ipa=ipa, audio=audio)
+        return cls(
+            word=word,
+            pos=pos,
+            senses=senses,
+            forms=forms,
+            ipa=ipa,
+            audio=audio,
+            derived_from=derived_from,
+        )
 
 
 class Redirect(Document):
