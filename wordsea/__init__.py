@@ -4,7 +4,7 @@ from wordsea.scripts import clean, find, generate, imagine
 
 
 @click.group()
-def main():
+def main() -> None:
     """WordSea command line interface."""
 
 

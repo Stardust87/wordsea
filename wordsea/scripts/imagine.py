@@ -14,7 +14,7 @@ from wordsea.gen import get_pipeline, parse_input_words
     "-m", "--model", type=str, default="playground", help="text2image model to use"
 )
 @click.option("-s", "--seed", type=int, help="random seed")
-def imagine(words, model, seed) -> None:
+def imagine(words: list[str], model: str, seed: int) -> None:
     """Generate images for words.
 
     WORDS: (list[str]): words to generate images for - every entity can be either a word or a path to a file with words separated by newlines

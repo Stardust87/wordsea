@@ -16,17 +16,11 @@ def find_words(
     words: list[str],
 ) -> dict[str, list[Meaning]]:
     found_words = defaultdict(list)
-    not_found = []
+    not_found: list[str] = []
 
     found = 0
     pbar = tqdm(enumerate(words), desc="Finding", total=len(words))
     for _, word in pbar:
-        pbar.set_postfix(
-            {
-                "found": f"{found}",
-                "not_found": f"{len(not_found)}",
-            }
-        )
         if query_words := Meaning.objects(word=word):
             found_words[str(word)] = [
                 json.loads(word.to_json()) for word in query_words
@@ -34,6 +28,13 @@ def find_words(
             found += 1
         else:
             not_found.append(word)
+
+        pbar.set_postfix(
+            {
+                "found": f"{found}",
+                "not_found": f"{len(not_found)}",
+            }
+        )
 
     if not_found:
         logging.warning(f"The following words were not found: {', '.join(not_found)}")

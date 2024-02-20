@@ -5,7 +5,7 @@ from typesense import exceptions
 from wordsea.db import Meaning, Redirect
 
 
-def create_typesense_index():
+def create_typesense_index() -> None:
     client = typesense.Client(
         {
             "nodes": [

@@ -1,5 +1,7 @@
+from typing import Any
+
 import torch
-from diffusers import (
+from diffusers import (  # type: ignore[attr-defined]
     DiffusionPipeline,
     StableCascadeDecoderPipeline,
     StableCascadePriorPipeline,
@@ -24,7 +26,7 @@ class StableCascadePipeline:
         self.decoder.to(device)
         return self
 
-    def __call__(self, **kwargs) -> torch.Tensor:
+    def __call__(self, **kwargs: dict[str, Any]) -> torch.Tensor:
         prior_output = self.prior(**kwargs)
         return self.decoder(
             prior_output.image_embeddings.half(),

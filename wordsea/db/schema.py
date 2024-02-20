@@ -77,9 +77,11 @@ class Meaning(Document):
                 )
                 ipa = preffered_ipas[0]["ipa"]
 
-        audio = [sound["mp3_url"] for sound in data["sounds"] if "mp3_url" in sound]
-        if audio:
-            audio = audio[0]
+        all_audios: list[str] = [
+            sound["mp3_url"] for sound in data["sounds"] if "mp3_url" in sound
+        ]
+        if all_audios:
+            audio = all_audios[0]
         else:
             audio = None
 

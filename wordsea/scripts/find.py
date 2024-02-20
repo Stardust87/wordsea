@@ -9,7 +9,7 @@ from wordsea.gen import parse_input_words
 
 @click.command()
 @click.argument("words", nargs=-1, type=str, required=True)
-def find(words) -> None:
+def find(words: list[str]) -> None:
     """Find words in JSON dictionary cleaned using `wordsea clean`.
 
     WORDS (list[str]): words to find - every entity can be either a word or a path to a file with words separated by newlines

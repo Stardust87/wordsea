@@ -49,7 +49,7 @@ def generate_image_prompts(model: str, entries: dict[str, list[Meaning]]) -> Non
     default=5,
     help="generate prompts for words with less than this number of images",
 )
-def generate(words, model, new, limit) -> None:
+def generate(words: list[str], model: str, new: bool, limit: int) -> None:
     """Generate image prompts for words.
 
     WORDS (list[str]): words to generate prompts for - every entity can be either a word or a path to a file with words separated by newlines
