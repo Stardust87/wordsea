@@ -20,4 +20,5 @@ export interface Meaning {
 	};
 	ipa: string;
 	audio: string;
+	derived_from: string;
 }
