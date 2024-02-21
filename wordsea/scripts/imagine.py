@@ -7,6 +7,21 @@ from tqdm import tqdm
 from wordsea.db import Image, Mnemonic, MongoDB
 from wordsea.gen import get_pipeline, parse_input_words
 
+PARAMETERS = {
+    "playground": {
+        "num_inference_steps": 40,
+        "guidance_scale": 4.5,
+    },
+    "cascade": {
+        "num_inference_steps": 20,
+        "guidance_scale": 4.5,
+    },
+    "lightning": {
+        "num_inference_steps": 4,
+        "guidance_scale": 0.0,
+    },
+}
+
 
 @click.command()
 @click.argument("words", nargs=-1, type=str, required=True)
@@ -29,6 +44,7 @@ def imagine(words: list[str], model: str, seed: int) -> None:
 
         if not incomplete_mnemonics:
             click.echo("all images are already generated")
+            return
 
         pipe = get_pipeline(model)
 
@@ -42,12 +58,11 @@ def imagine(words: list[str], model: str, seed: int) -> None:
 
             image = pipe(  # type: ignore[operator]
                 prompt=mnemo.prompt,
-                num_inference_steps=20 if model == "cascade" else 40,
                 generator=generator,
-                guidance_scale=4.5,
                 num_images_per_prompt=1,
                 height=1024,
                 width=1024,
+                **PARAMETERS[model],
             ).images[0]
 
             with io.BytesIO() as buf:

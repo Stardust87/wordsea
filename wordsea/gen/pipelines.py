@@ -3,9 +3,13 @@ from typing import Any
 import torch
 from diffusers import (  # type: ignore[attr-defined]
     DiffusionPipeline,
+    EulerDiscreteScheduler,
     StableCascadeDecoderPipeline,
     StableCascadePriorPipeline,
+    StableDiffusionXLPipeline,
+    UNet2DConditionModel,
 )
+from huggingface_hub import hf_hub_download
 
 
 class StableCascadePipeline:
@@ -55,6 +59,25 @@ def get_pipeline(model: str) -> DiffusionPipeline:
 
         case "cascade":
             pipe = StableCascadePipeline()
+
+        case "lightning":
+            base = "stabilityai/stable-diffusion-xl-base-1.0"
+            repo = "ByteDance/SDXL-Lightning"
+            ckpt = "sdxl_lightning_4step_unet.pth"
+
+            unet = UNet2DConditionModel.from_config(
+                UNet2DConditionModel.load_config(base, subfolder="unet")
+            ).to("cuda", torch.bfloat16)
+            unet.load_state_dict(
+                torch.load(hf_hub_download(repo, ckpt), map_location="cuda")
+            )
+            pipe = StableDiffusionXLPipeline.from_pretrained(
+                base, unet=unet, torch_dtype=torch.bfloat16, variant="fp16"
+            )
+
+            pipe.scheduler = EulerDiscreteScheduler.from_config(
+                pipe.scheduler.config, timestep_spacing="trailing"
+            )
 
         case _:
             raise ValueError(f"model not supported: {model}")
