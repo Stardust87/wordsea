@@ -16,7 +16,7 @@
 		<div
 			class="absolute bottom-0 left-0 flex w-full justify-center rounded-lg bg-slate-800/60 py-2 md:py-5"
 		>
-			<span class="text-center text-lg font-semibold text-slate-300 md:text-xl">{randomWord}</span>
+			<span class="text-center text-lg font-semibold text-slate-100 md:text-xl">{randomWord}</span>
 		</div>
 	</a>
 </div>

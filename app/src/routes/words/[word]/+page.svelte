@@ -2,10 +2,11 @@
 	import Definition from '$lib/components/definition.svelte';
 	import MnemonicImages from '$lib/components/mnemonicImages.svelte';
 	import RecordingPlayer from '$lib/components/recordingPlayer.svelte';
+	import Derivation from '$lib/components/derivation.svelte';
 
 	export let data;
 
-	$: ({ word, mnemonics, meanings } = data);
+	$: ({ word, mnemonics, meanings, derivatives } = data);
 </script>
 
 <h1 class="text-5xl">{word}</h1>
@@ -25,6 +26,9 @@
 		{#if mnemonics.length > 0}
 			<MnemonicImages {mnemonics} />
 		{/if}
-		<Definition {meanings} />
+		<div class="w-full md:w-7/12">
+			<Definition {meanings} />
+			<Derivation derivedFrom={meanings[0].derived_from} {derivatives} />
+		</div>
 	</div>
 {/if}

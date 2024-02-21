@@ -1,21 +1,23 @@
 import { mnemonics, meanings } from '$lib/server/database';
 import type { Mnemonic } from '$lib/types/Mnemonic';
 import type { Meaning } from '$lib/types/Meaning';
-import { loadImages } from '$lib/server/loader.js';
+import { loadImages, loadDerivatives } from '$lib/server/loader.js';
 
 export const load = async ({ params }) => {
 	const { word } = params;
 	const word_meanings = await meanings.find({ word }).toArray();
 
-	const derivedFrom = word_meanings
+	const hasDerivedFrom = word_meanings
 		.map((meaning) => meaning.derived_from)
 		.some((val) => val !== undefined);
 
 	let word_mnemonics;
-	if (derivedFrom) {
+	if (hasDerivedFrom) {
 		word_mnemonics = await mnemonics
-			.find({ $or: [{ word: word_meanings[0].derived_from }, { word }] })
-			.sort({ $natural: -1 })
+			.find({ word })
+			.sort({
+				$natural: -1
+			})
 			.limit(5)
 			.toArray();
 	} else {
@@ -28,6 +30,8 @@ export const load = async ({ params }) => {
 		}
 	}
 
+	const derivatives = await loadDerivatives(word);
+
 	return {
 		...params,
 		mnemonics:
@@ -35,6 +39,7 @@ export const load = async ({ params }) => {
 				? (JSON.parse(JSON.stringify(word_mnemonics)) as Array<Mnemonic>)
 				: [],
 		meanings:
-			word_meanings.length > 0 ? (JSON.parse(JSON.stringify(word_meanings)) as Array<Meaning>) : []
+			word_meanings.length > 0 ? (JSON.parse(JSON.stringify(word_meanings)) as Array<Meaning>) : [],
+		derivatives: derivatives ? derivatives : []
 	};
 };

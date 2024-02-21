@@ -20,7 +20,7 @@
 	};
 </script>
 
-<ol class="list-roman min-w-prose list-inside md:w-7/12">
+<ol class="list-roman min-w-prose list-inside">
 	{#each meanings as meaning}
 		<div class="mb-4 rounded-md bg-slate-50 p-2 shadow-md dark:bg-slate-700/50 dark:shadow-sm">
 			<li class="text-xl">

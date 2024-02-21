@@ -1,4 +1,4 @@
-import { gridfs  } from '$lib/server/database';
+import { gridfs, meanings  } from '$lib/server/database';
 import type { FSLink } from '$lib/types/FSLink';
 
 export const loadImages = async (images: FSLink[]) => {
@@ -17,4 +17,10 @@ export const loadImages = async (images: FSLink[]) => {
 		await new Promise((resolve) => stream.on('end', resolve));
 	}
 	return imagesData;
+};
+
+
+export const loadDerivatives = async (word: string) => {
+	const derivatives = await meanings.find({ derived_from: word }).toArray();
+	return derivatives.map((meaning) => meaning.word) as string[];
 };
