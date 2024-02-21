@@ -5,7 +5,6 @@ from mongoengine import (
     Document,
     EmbeddedDocument,
     EmbeddedDocumentField,
-    EmbeddedDocumentListField,
     FileField,
     ListField,
     StringField,
@@ -143,5 +142,5 @@ class Mnemonic(Document):
     explanation = StringField(required=True)
     prompt = StringField(required=True)
     language_model = StringField(required=True)
-    images = EmbeddedDocumentListField(Image)
+    image = EmbeddedDocumentField(Image)
     image_model = StringField()

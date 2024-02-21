@@ -3,12 +3,14 @@
 	import DailyImage from '$lib/components/dailyImage.svelte';
 
 	export let data;
+
+	$: ({ featured, randomWord, availableWords } = data);
 </script>
 
 <div>
-	{#if data.mnemonics.length > 0}
-		<DailyImage mnemonics={data.mnemonics} randomWord={data.randomWord} />
+	{#if featured}
+		<DailyImage {featured} {randomWord} />
 	{/if}
 
-	<WordsList words={data.availableWords} />
+	<WordsList words={availableWords} />
 </div>

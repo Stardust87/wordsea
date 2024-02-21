@@ -37,13 +37,8 @@ class LLMParams:
         self.stop.append("}")
 
 
-MixtralParams = LLMParams(
-    template="[INST] {prompt} [/INST]", dynatemp_range=0.5, temperature=0.7
-)
+MixtralParams = LLMParams(template="[INST] {prompt} [/INST]")
 MistralParams = LLMParams(template="[INST] {prompt} [/INST]")
-YiParams = LLMParams(
-    template="<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant"
-)
 QwenParams = LLMParams(
     template="<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant",
     dynatemp_range=0.2,
@@ -69,8 +64,6 @@ class LlamaCppAPI:
                 self.params = asdict(MixtralParams)
             case "mistral":
                 self.params = asdict(MistralParams)
-            case "yi":
-                self.params = asdict(YiParams)
             case "qwen":
                 self.params = asdict(QwenParams)
             case _:

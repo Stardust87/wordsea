@@ -5,7 +5,7 @@ export interface Mnemonic {
 	word: string;
 	prompt: string;
 	explanation: string;
-	images: string[];
+	image: string;
 	language_model: string;
 	image_model: string;
 }

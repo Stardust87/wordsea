@@ -15,16 +15,16 @@ from wordsea.gen import get_pipeline, parse_input_words
 )
 @click.option("-s", "--seed", type=int, help="random seed")
 def imagine(words: list[str], model: str, seed: int) -> None:
-    """Generate images for words.
+    """Generate image for words.
 
-    WORDS: (list[str]): words to generate images for - every entity can be either a word or a path to a file with words separated by newlines
+    WORDS: (list[str]): words to generate image for - every entity can be either a word or a path to a file with words separated by newlines
     """
 
     words = parse_input_words(words)
 
     with MongoDB():
         incomplete_mnemonics = Mnemonic.objects(
-            word__in=words, images__size=0
+            word__in=words, image__exists=False
         ).order_by("word")
 
         if not incomplete_mnemonics:
@@ -40,21 +40,21 @@ def imagine(words: list[str], model: str, seed: int) -> None:
             pbar.set_postfix_str(mnemo.word)
             mnemo.image_model = model
 
-            output = pipe(  # type: ignore[operator]
+            image = pipe(  # type: ignore[operator]
                 prompt=mnemo.prompt,
-                num_inference_steps=20,
+                num_inference_steps=20 if model == "cascade" else 40,
                 generator=generator,
                 guidance_scale=4.5,
                 num_images_per_prompt=1,
                 height=1024,
                 width=1024,
-            )
+            ).images[0]
 
-            for image in output.images:
-                with io.BytesIO() as buf:
-                    image.save(buf, format="webp", optimize=True, quality=85)
-                    image_db = Image()
-                    image_db.data.put(buf.getvalue(), content_type="image/webp")
-                    mnemo.images.append(image_db)
+            with io.BytesIO() as buf:
+                image = image.resize((768, 768))
+                image.save(buf, format="webp", optimize=True, quality=85)
+                image_db = Image()
+                image_db.data.put(buf.getvalue(), content_type="image/webp")
+                mnemo.image = image_db
 
             mnemo.save()

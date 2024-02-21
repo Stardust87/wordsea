@@ -1,7 +1,7 @@
 import { mnemonics, meanings } from '$lib/server/database';
 import type { Mnemonic } from '$lib/types/Mnemonic';
 import type { Meaning } from '$lib/types/Meaning';
-import { loadImages, loadDerivatives } from '$lib/server/loader.js';
+import { loadImage, loadDerivatives } from '$lib/server/loader.js';
 
 export const load = async ({ params }) => {
 	const { word } = params;
@@ -21,12 +21,16 @@ export const load = async ({ params }) => {
 			.limit(5)
 			.toArray();
 	} else {
-		word_mnemonics = await mnemonics.find({ word }).sort({ $natural: -1 }).limit(5).toArray();
+		word_mnemonics = await mnemonics
+			.find({ word, image: { $exists: true } })
+			.sort({ $natural: -1 })
+			.limit(5)
+			.toArray();
 	}
 
 	if (word_mnemonics.length > 0) {
 		for (const mnemonic of word_mnemonics) {
-			mnemonic.images = await loadImages(mnemonic.images);
+			mnemonic.image = await loadImage(mnemonic.image);
 		}
 	}
 
