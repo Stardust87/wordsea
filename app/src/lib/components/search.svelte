@@ -70,7 +70,7 @@
 						return html`<a
 							onclick=${clearSearch}
 							href="/words/${hit.word}"
-							class="block w-full px-2 py-1 focus:bg-teal-500/25 focus:outline-none"
+							class="block w-full px-2 py-1 focus:bg-cyan-500/25 focus:outline-none"
 							>${components.Highlight({ attribute: 'word', hit })}</a
 						>`;
 					},

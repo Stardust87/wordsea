@@ -9,9 +9,9 @@
 </script>
 
 <div class="flex w-full flex-wrap gap-4 md:flex-nowrap">
+	<About />
 	{#if featured}
 		<DailyImage {featured} {randomWord} />
 	{/if}
-	<About />
 </div>
 <WordsList words={availableWords} />
