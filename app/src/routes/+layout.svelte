@@ -4,6 +4,6 @@
 </script>
 
 <Navbar />
-<main class="container mx-auto mb-4 mt-2 px-2 pb-2 lg:px-8 lg:pb-8">
+<main class="container mx-auto my-2 p-2 lg:my-4 lg:p-4">
 	<slot />
 </main>

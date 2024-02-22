@@ -56,7 +56,7 @@
 <button
 	class="{dark
 		? 'ring-offset-gray-700 focus:ring-gray-400'
-		: 'ring-offset-white focus:ring-yellow-400'} m-1 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2"
+		: 'ring-offset-white focus:ring-yellow-400'} my-1 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 min-[480px]:order-last"
 	class:hidden
 	on:click={toggle}
 >

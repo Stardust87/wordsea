@@ -3,12 +3,14 @@
 
 <div class=" m-auto w-full md:w-1/2">
 	<h1
-		class=" mb-4 text-3xl font-extrabold text-gray-900 drop-shadow-xl md:text-4xl lg:text-6xl dark:text-white"
+		class="mb-4 text-4xl font-extrabold text-gray-900 drop-shadow-xl md:text-4xl lg:text-6xl dark:text-white"
 	>
 		<span class="bg-gradient-to-r from-cyan-400 to-emerald-600 bg-clip-text text-transparent"
 			>WordSea</span
 		>
-		<span class="text-xl text-gray-600 lg:text-3xl dark:text-gray-300">Let written be seen.</span>
+		<span class="whitespace-nowrap text-2xl text-gray-600 lg:text-3xl dark:text-gray-300"
+			>Let written be seen.</span
+		>
 	</h1>
 	<p class="mb-3 text-lg text-gray-500 md:text-xl dark:text-gray-400">
 		Have you ever encountered words that left you searching through dictionaries for definitions,
@@ -29,3 +31,9 @@
 		See the unseen. Dive into the WordSea.
 	</p>
 </div>
+
+<style>
+	h1 {
+		line-height: 0.65;
+	}
+</style>

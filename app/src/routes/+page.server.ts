@@ -1,4 +1,4 @@
-import { mnemonics } from '$lib/server/database';
+import { mnemonics, baseWords } from '$lib/server/database';
 import type { Mnemonic } from '$lib/types/Mnemonic';
 import { loadImage } from '$lib/server/loader';
 
@@ -9,7 +9,8 @@ const random = (words: string[]) => {
 
 export const load = async () => {
 	const availableWords: string[] = await mnemonics.distinct('word');
-	const randomWord = availableWords[random(availableWords)];
+
+	const randomWord = baseWords[random(baseWords)];
 
 	const sampleMnemonics = await mnemonics
 		.aggregate([{ $match: { word: randomWord } }, { $sample: { size: 1 } }])

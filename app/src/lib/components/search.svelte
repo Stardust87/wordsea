@@ -150,7 +150,7 @@
 
 <div
 	id="searchbar"
-	class="relative mx-4 w-auto grow sm:w-96 sm:grow-0"
+	class="relative w-full grow min-[480px]:mx-4 min-[480px]:w-auto sm:w-96 sm:grow-0"
 	use:clickoutside
 	on:clickoutside={() => {
 		hideResults = true;

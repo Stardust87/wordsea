@@ -19,6 +19,6 @@ export const loadImage = async (image: FSLink) => {
 };
 
 export const loadDerivatives = async (word: string) => {
-	const derivatives = await meanings.find({ derived_from: word }).toArray();
-	return derivatives.map((meaning) => meaning.word) as string[];
+	const derivatives = await meanings.distinct('word', { derived_from: word });
+	return derivatives as string[];
 };

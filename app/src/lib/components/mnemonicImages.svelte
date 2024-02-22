@@ -5,7 +5,7 @@
 	$: featured = mnemonics[0];
 </script>
 
-<div class="relative mb-4 flex w-full flex-col gap-2 md:w-5/12">
+<div class="relative flex w-full flex-col gap-2 md:w-5/12">
 	<div class="group relative">
 		<img
 			class="group-hover:brightness-25 h-auto max-w-full rounded-lg shadow-lg duration-300"

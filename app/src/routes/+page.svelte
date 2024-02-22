@@ -8,10 +8,10 @@
 	$: ({ featured, randomWord, availableWords } = data);
 </script>
 
-<div class="flex w-full flex-wrap gap-4 md:flex-nowrap">
+<div class="mt-4 flex w-full flex-wrap gap-4 md:mt-8 md:flex-nowrap">
 	<About />
 	{#if featured}
 		<DailyImage {featured} {randomWord} />
 	{/if}
 </div>
-<WordsList words={availableWords} />
+<!-- <WordsList words={availableWords} /> -->
