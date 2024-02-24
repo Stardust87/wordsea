@@ -1,16 +1,14 @@
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
-import pandas as pd
 from tqdm import tqdm
 
-from wordsea.db.schema import Meaning, Redirect
+from wordsea.db.schema import Meaning
 from wordsea.dictionary.clean.constraints import (
     filter_nonalpha_examples,
     has_correct_word,
     is_language,
-    is_redirect,
     is_vulgar,
     starts_with_number,
 )
@@ -22,34 +20,19 @@ class WikiRawStream:
     def __init__(
         self,
         path: str,
-        words_subset_path: Optional[str] = None,
+        words_subset_path: str,
     ):
         self.path = Path(path)
-        self.words_subset = (
-            {word: True for word in parse_input_words([words_subset_path])}
-            if words_subset_path
-            else {}
-        )
+        self.words_subset = set(parse_input_words([words_subset_path]))
 
-        self.redirects: list[Redirect] = []
-        self.meanings: list[Meaning] = []
-        self.derived: dict[str, str] = {}  # derived word -> base word
+        self.derived: dict[str, str] = self.find_derived()  # derived word -> base word
+        self.meanings: list[Meaning] = self.process()
 
-    def filter_senses(
-        self, word: str, senses: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    def filter_senses(self, senses: list[dict[str, Any]]) -> list[dict[str, Any]]:
         new_senses = {}
 
         for sense in senses:
-            if "form_of" in sense:
-                for form in sense["form_of"]:
-                    if "word" in form:
-                        self.redirects.append(
-                            Redirect(from_word=word, to_word=form["word"])
-                        )
-                continue
-
-            elif "glosses" not in sense:
+            if "form_of" in sense or "glosses" not in sense:
                 continue
 
             gloss = sense["glosses"][0]
@@ -70,47 +53,46 @@ class WikiRawStream:
 
         return list(new_senses.values())
 
-    def find_derived(self) -> None:
+    def find_derived(self) -> dict[str, str]:
+        derived_words: dict[str, str] = {}
+
         with self.path.open(encoding="utf-8") as raw_file:
-            pbar = tqdm(raw_file, desc="Finding derived words")
-            for line in pbar:
-                pbar.set_postfix(
-                    {
-                        "n_derived": f"{len(self.derived)/1000:.1f}K",
-                    }
-                )
+            for line in tqdm(raw_file, desc="Finding derived words"):
                 entry = json.loads(line)
 
-                if entry.get("word", None) in self.words_subset:
+                if entry.get("word", None) in self.words_subset and is_language(entry):
                     for derived in entry.get("derived", []):
-                        if "word" in derived:
-                            if derived["word"] not in self.words_subset:
-                                self.derived[derived["word"]] = entry["word"]
+                        if (
+                            "word" in derived
+                            and derived["word"] not in self.words_subset
+                        ):
+                            derived_words[derived["word"]] = entry["word"]
 
-    def process(self) -> None:
-        self.find_derived()
+        return derived_words
+
+    def process(self) -> list[Meaning]:
+        meanings: list[Meaning] = []
 
         with self.path.open(encoding="utf-8") as raw_file:
             pbar = tqdm(enumerate(raw_file), desc="Cleaning")
             for idx, line in pbar:
                 pbar.set_postfix(
                     {
-                        "pct_valid": f"{len(self.meanings) / (idx + 1):.2%}",
-                        "n_valid": f"{len(self.meanings)/1000:.1f}K",
+                        "pct_valid": f"{len(meanings) / (idx + 1):.2%}",
+                        "n_valid": f"{len(meanings)/1000:.1f}K",
                     }
                 )
                 entry = json.loads(line)
 
-                if self.words_subset and entry["word"] not in self.words_subset:
-                    if entry.get("word", None) in self.derived:
+                if "word" not in entry:
+                    continue
+
+                if entry["word"] not in self.words_subset:
+                    if entry["word"] in self.derived:
                         entry["derived_from"] = self.derived[entry["word"]]
                     else:
                         continue
-                if is_redirect(entry):
-                    self.redirects.append(
-                        Redirect(from_word=entry["title"], to_word=entry["redirect"])
-                    )
-                    continue
+
                 if not is_language(entry):
                     continue
                 if not has_correct_word(entry):
@@ -118,38 +100,15 @@ class WikiRawStream:
                 if is_vulgar(entry):
                     continue
 
-                entry["senses"] = self.filter_senses(entry["word"], entry["senses"])
+                entry["senses"] = self.filter_senses(entry["senses"])
                 if not entry["senses"]:
                     continue
 
-                self.meanings.append(Meaning.from_wiktionary(entry))
+                meanings.append(Meaning.from_wiktionary(entry))
 
-    def process_redirects(self) -> list[Redirect]:
-        redirects_df = pd.DataFrame(
-            [json.loads(r.to_json(ensure_ascii=False)) for r in self.redirects]
-        )
-        redirects_df = redirects_df.drop_duplicates(subset=["from_word"], keep="first")
+        return meanings
 
-        meanings_df = pd.DataFrame([w.word for w in self.meanings], columns=["word"])
-        meanings_df = meanings_df.drop_duplicates(subset=["word"], keep="first")
-
-        redirects_df = redirects_df.merge(
-            meanings_df, left_on="to_word", right_on="word", how="inner"
-        )
-
-        return [
-            Redirect(from_word=r.from_word, to_word=r.word)
-            for r in redirects_df.itertuples()
-        ]
-
-    def export(self) -> None:
-        self.redirects = self.process_redirects()
-
+    def upload(self) -> None:
         Meaning.drop_collection()
-        Redirect.drop_collection()
-
         Meaning.objects.insert(self.meanings)
-        Redirect.objects.insert(self.redirects)
-
-    def index(self) -> None:
         create_typesense_index()

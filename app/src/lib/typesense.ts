@@ -20,7 +20,7 @@ export const typesenseInstantSearchAdapter = () =>
 			]
 		},
 		additionalSearchParameters: {
-			query_by: 'word,redirects',
+			query_by: 'word,forms',
 			prioritize_token_position: true,
 			num_typos: 2,
 			sort_by: '_text_match:desc, word:asc'

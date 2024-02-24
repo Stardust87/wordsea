@@ -2,7 +2,7 @@ import typesense
 from tqdm import tqdm
 from typesense import exceptions
 
-from wordsea.db import Meaning, Redirect
+from wordsea.db import Meaning
 
 
 def create_typesense_index() -> None:
@@ -29,17 +29,18 @@ def create_typesense_index() -> None:
         "name": "words",
         "fields": [
             {"name": "word", "type": "string", "facet": True, "sort": True},
-            {"name": "redirects", "type": "string[]", "facet": True},
+            {"name": "forms", "type": "string[]", "facet": True},
         ],
     }
 
     client.collections.create(schema)
 
-    for word in tqdm(Meaning.objects.distinct("word"), desc="Indexing"):
-        redirects = [redirect.from_word for redirect in Redirect.objects(to_word=word)]
+    pipeline = [{"$group": {"_id": "$word", "forms": {"$mergeObjects": "$forms"}}}]
+    for meaning in tqdm(Meaning.objects().aggregate(pipeline), desc="Indexing"):
+        forms = list(set(meaning["forms"].values()))
         client.collections["words"].documents.create(
             {
-                "word": word,
-                "redirects": redirects,
+                "word": meaning["_id"],
+                "forms": forms,
             }
         )

@@ -126,12 +126,6 @@ class Meaning(Document):
         )
 
 
-class Redirect(Document):
-    meta: ClassVar[dict] = {"collection": "redirects"}
-    from_word = StringField(required=True)
-    to_word = StringField(required=True)
-
-
 class Image(EmbeddedDocument):
     data = FileField()
 

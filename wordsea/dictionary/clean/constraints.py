@@ -39,9 +39,5 @@ def has_correct_word(entry: dict[str, Any]) -> bool:
     )
 
 
-def is_redirect(entry: dict[str, Any]) -> bool:
-    return "redirect" in entry
-
-
 def is_vulgar(entry: dict[str, Any]) -> bool:
     return "vulgar" in entry.get("tags", []) or "fuck" in entry["word"]
