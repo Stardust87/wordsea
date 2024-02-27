@@ -22,6 +22,9 @@ export const load = async () => {
 	return {
 		availableWords: availableWords,
 		randomWord: randomWord,
-		featured: JSON.parse(JSON.stringify(featured)) as Mnemonic
+		featured: JSON.parse(JSON.stringify(featured)) as Mnemonic,
+		title: 'WordSea: Where Written can be Seen. Explore the Visualized Dictionary for Word Learning.',
+		description: "Unlock the power of memory with our comprehensive dictionary featuring mnemonic images, definitions, IPA pronunciation, audio recordings, and word derivatives. Enhance your vocabulary retention effortlessly while grasping the true essence of each word. Explore now!",
+		image: featured.image
 	};
 };
