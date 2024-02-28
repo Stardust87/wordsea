@@ -11,7 +11,12 @@ export const meanings = db.collection('meanings');
 export const baseWords = await meanings
 	.aggregate([
 		{ $lookup: { from: 'mnemonics', localField: 'word', foreignField: 'word', as: 'mnemonics' } },
-		{ $match: { derived_from: { $exists: false }, mnemonics: { $not: { $size: 0 } } } },
+		{
+			$match: {
+				derived_from: { $exists: false },
+				mnemonics: { $not: { $size: 0 }, $elemMatch: { image: { $exists: true } } }
+			}
+		},
 		{ $project: { word: true } },
 		{ $group: { _id: '$word' } },
 		{ $sort: { _id: 1 } }

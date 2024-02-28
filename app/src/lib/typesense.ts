@@ -22,7 +22,7 @@ export const typesenseInstantSearchAdapter = () =>
 		additionalSearchParameters: {
 			query_by: 'word,forms',
 			prioritize_token_position: true,
-			num_typos: 2,
-			sort_by: '_text_match:desc, word:asc'
+			num_typos: 3,
+			sort_by: 'word:asc, _text_match:desc'
 		}
 	});
