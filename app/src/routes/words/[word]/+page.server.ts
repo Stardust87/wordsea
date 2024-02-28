@@ -36,24 +36,27 @@ export const load = async ({ params }) => {
 
 	const derivatives = await loadDerivatives(word);
 
-	word_mnemonics = word_mnemonics.length > 0 ? (JSON.parse(JSON.stringify(word_mnemonics))) : []
-	word_meanings = word_meanings.length > 0 ? (JSON.parse(JSON.stringify(word_meanings))) : []
+	word_mnemonics = word_mnemonics.length > 0 ? JSON.parse(JSON.stringify(word_mnemonics)) : [];
+	word_meanings = word_meanings.length > 0 ? JSON.parse(JSON.stringify(word_meanings)) : [];
 
-	const alphabet = "abc"
-	const description = word_meanings.map((meaning, index) => 
-	`${index + 1}. ${meaning["senses"].slice(0, 3).map(((sense: { gloss: string }, index: number)=> 
-	`${alphabet[index]}) ${sense.gloss}`)).join(' ')}`).join(' ');
-
-
+	const alphabet = 'abc';
+	const description = word_meanings
+		.map(
+			(meaning, index) =>
+				`${index + 1}. ${meaning['senses']
+					.slice(0, 3)
+					.map((sense: { gloss: string }, index: number) => `${alphabet[index]}) ${sense.gloss}`)
+					.join(' ')}`
+		)
+		.join(' ');
 
 	return {
 		...params,
 		mnemonics: word_mnemonics as Mnemonic[],
 		meanings: word_meanings as Meaning[],
 		derivatives: derivatives ? derivatives : [],
-		title: `Discover the Meaning of ${word} at WordSea!"`,
+		title: `${word} meaning • WordSea`,
 		description: description,
 		image: word_mnemonics.length > 0 ? word_mnemonics[0].image : undefined
-
 	};
 };
