@@ -35,3 +35,22 @@ def render_prompt(word: str, definition: str) -> str:
     env = Environment(loader=FileSystemLoader(TEMPLATES_PATH))
     template = env.get_template("prompt.html")
     return template.render(word=word, definition=definition)
+
+
+def render_prompt_derived(
+    word: str, definition: str, derived_word: str, derived_definition: str
+) -> str:
+    definition = re.sub(r"\s\s+", " ", definition)
+    definition = definition.replace("\n", "")
+
+    derived_definition = re.sub(r"\s\s+", " ", derived_definition)
+    derived_definition = derived_definition.replace("\n", "")
+
+    env = Environment(loader=FileSystemLoader(TEMPLATES_PATH))
+    template = env.get_template("prompt-derived.html")
+    return template.render(
+        word=word,
+        definition=definition,
+        derived_word=derived_word,
+        derived_definition=derived_definition,
+    )

@@ -4,7 +4,13 @@ from tqdm import tqdm
 from wordsea.constants import LLAMACPP_URL
 from wordsea.db import Meaning, Mnemonic, MongoDB
 from wordsea.dictionary import find_words
-from wordsea.gen import LlamaCppAPI, parse_input_words, render_definition, render_prompt
+from wordsea.gen import (
+    LlamaCppAPI,
+    parse_input_words,
+    render_definition,
+    render_prompt,
+    render_prompt_derived,
+)
 
 
 def generate_image_prompts(model: str, entries: dict[str, list[Meaning]]) -> None:
@@ -15,8 +21,19 @@ def generate_image_prompts(model: str, entries: dict[str, list[Meaning]]) -> Non
     pbar = tqdm(entries.items(), total=len(entries), desc="Generating image prompts")
     for word, entry in pbar:
         pbar.set_postfix_str(word)
+
         html = render_definition(entry)
-        prompt = render_prompt(word, html)
+
+        derived_from = {meaning.get("derived_from", None) for meaning in entry}
+        derived_from.discard(None)
+        derived_word = derived_from.pop() if len(derived_from) == 1 else None
+
+        if derived_word:
+            derived_entry = Meaning.objects(word=derived_word)
+            derived_html = render_definition(derived_entry)
+            prompt = render_prompt_derived(word, html, derived_word, derived_html)
+        else:
+            prompt = render_prompt(word, html)
 
         answer = api.generate(word, prompt)
         if answer is None:
