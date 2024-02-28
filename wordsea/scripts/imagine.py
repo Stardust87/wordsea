@@ -1,4 +1,5 @@
 import io
+from typing import Optional
 
 import click
 import torch
@@ -9,38 +10,38 @@ from wordsea.gen import get_pipeline, parse_input_words
 
 PARAMETERS = {
     "playground": {
-        "num_inference_steps": 40,
-        "guidance_scale": 4.5,
-    },
-    "cascade": {
-        "num_inference_steps": 20,
-        "guidance_scale": 4.5,
+        "num_inference_steps": 50,
+        "guidance_scale": 3.0,
     },
     "lightning": {
-        "num_inference_steps": 4,
+        "num_inference_steps": 8,
         "guidance_scale": 0.0,
     },
 }
 
 
 @click.command()
-@click.argument("words", nargs=-1, type=str, required=True)
+@click.argument("words", nargs=-1, type=str, required=False)
 @click.option(
     "-m", "--model", type=str, default="playground", help="text2image model to use"
 )
 @click.option("-s", "--seed", type=int, help="random seed")
-def imagine(words: list[str], model: str, seed: int) -> None:
+def imagine(words: Optional[list[str]], model: str, seed: int) -> None:
     """Generate image for words.
 
     WORDS: (list[str]): words to generate image for - every entity can be either a word or a path to a file with words separated by newlines
     """
 
-    words = parse_input_words(words)
-
     with MongoDB():
-        incomplete_mnemonics = Mnemonic.objects(
-            word__in=words, image__exists=False
-        ).order_by("word")
+        if words:
+            words = parse_input_words(words)
+            incomplete_mnemonics = Mnemonic.objects(
+                word__in=words, image__exists=False
+            ).order_by("word")
+        else:
+            incomplete_mnemonics = Mnemonic.objects(image__exists=False).order_by(
+                "word"
+            )
 
         if not incomplete_mnemonics:
             click.echo("all images are already generated")
