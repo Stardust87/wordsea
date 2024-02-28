@@ -7,26 +7,11 @@ export const load = async ({ params }) => {
 	const { word } = params;
 	let word_meanings = await meanings.find({ word }).toArray();
 
-	const hasDerivedFrom = word_meanings
-		.map((meaning) => meaning.derived_from)
-		.some((val) => val !== undefined);
-
-	let word_mnemonics;
-	if (hasDerivedFrom) {
-		word_mnemonics = await mnemonics
-			.find({ word })
-			.sort({
-				$natural: -1
-			})
-			.limit(5)
-			.toArray();
-	} else {
-		word_mnemonics = await mnemonics
-			.find({ word, image: { $exists: true } })
-			.sort({ $natural: -1 })
-			.limit(5)
-			.toArray();
-	}
+	let word_mnemonics = await mnemonics
+		.find({ word, image: { $exists: true } })
+		.sort({ $natural: -1 })
+		.limit(5)
+		.toArray();
 
 	if (word_mnemonics.length > 0) {
 		for (const mnemonic of word_mnemonics) {
