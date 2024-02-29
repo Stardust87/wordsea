@@ -14,12 +14,13 @@ logging.basicConfig(
 
 def find_words(
     words: list[str],
+    silent: bool = False,
 ) -> dict[str, list[Meaning]]:
     found_words = defaultdict(list)
     not_found: list[str] = []
 
     found = 0
-    pbar = tqdm(enumerate(words), desc="Finding", total=len(words))
+    pbar = tqdm(enumerate(words), desc="Finding", total=len(words), disable=silent)
     for _, word in pbar:
         if query_words := Meaning.objects(word=word):
             found_words[str(word)] = [
@@ -39,5 +40,4 @@ def find_words(
     if not_found:
         logging.warning(f"The following words were not found: {', '.join(not_found)}")
 
-    print(f"Found {found} words from {len(words)}")
     return found_words

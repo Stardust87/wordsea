@@ -32,7 +32,7 @@ class WikiRawStream:
         new_senses = {}
 
         for sense in senses:
-            if "form_of" in sense or "glosses" not in sense:
+            if "alt_of" in sense or "form_of" in sense or "glosses" not in sense:
                 continue
 
             gloss = sense["glosses"][0]

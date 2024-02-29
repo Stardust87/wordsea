@@ -13,13 +13,14 @@ from wordsea.gen import (
 )
 
 
-def generate_image_prompts(model: str, entries: dict[str, list[Meaning]]) -> None:
+def generate_image_prompts(model: str, words: list[str], silent: bool) -> None:
     api = LlamaCppAPI(url=LLAMACPP_URL, model=model)
     if not api.health():
         raise RuntimeError("API is not healthy")
 
-    pbar = tqdm(entries.items(), total=len(entries), desc="Generating image prompts")
-    for word, entry in pbar:
+    pbar = tqdm(words, total=len(words), desc="Generating image prompts")
+    for word in pbar:
+        entry: list[Meaning] = find_words([word], silent=silent)[word]
         pbar.set_postfix_str(word)
 
         html = render_definition(entry)
@@ -49,7 +50,7 @@ def generate_image_prompts(model: str, entries: dict[str, list[Meaning]]) -> Non
 
 
 @click.command()
-@click.argument("words", nargs=-1, type=str, required=True)
+@click.argument("words", nargs=-1, type=str, required=False)
 @click.option(
     "-m", "--model", type=str, default="mixtral", help="language model to use"
 )
@@ -66,15 +67,24 @@ def generate_image_prompts(model: str, entries: dict[str, list[Meaning]]) -> Non
     default=5,
     help="generate prompts for words with less than this number of images",
 )
-def generate(words: list[str], model: str, new: bool, limit: int) -> None:
+@click.option(
+    "-s",
+    "--silent",
+    is_flag=True,
+    help="whether to suppress the finding progress bar",
+)
+def generate(words: list[str], model: str, new: bool, limit: int, silent: bool) -> None:
     """Generate image prompts for words.
 
     WORDS (list[str]): words to generate prompts for - every entity can be either a word or a path to a file with words separated by newlines
     """
 
-    words = parse_input_words(words)
-
     with MongoDB():
+        if not words:
+            words = Meaning.objects(derived_from__exists=False).distinct("word")
+        else:
+            words = parse_input_words(words)
+
         if new:
             generated = [mnemo.word for mnemo in Mnemonic.objects(word__in=words)]
             words = [word for word in words if word not in generated]
@@ -88,5 +98,4 @@ def generate(words: list[str], model: str, new: bool, limit: int) -> None:
             click.echo("all prompts are already generated")
             exit(0)
 
-        entries = find_words(words)
-        generate_image_prompts(model, entries)
+        generate_image_prompts(model, words, silent)
