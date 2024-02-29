@@ -1,6 +1,7 @@
 import json
 import logging
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Any
 
 import requests
@@ -75,6 +76,11 @@ class LlamaCppAPI:
         res = requests.get(f"{self.base_url}/health").json()
         return res["status"] == "ok"
 
+    def log_error(self, path: Path, word: str, response: str) -> None:
+        with Path(path / "errors.jsonl", encoding="utf-8").open("a") as f:
+            message = {"word": word, "response": response["content"]}
+            f.write(json.dumps(message) + "\n")
+
     def generate(self, word: str, prompt: str) -> dict[str, Any]:
         prompt = self.template.format(prompt=prompt)
         res = requests.post(
@@ -87,14 +93,21 @@ class LlamaCppAPI:
         ).json()
         res["content"] += "}"
 
+        logs_path = Path("logs")
+        logs_path.mkdir(exist_ok=True)
+
         try:
             answer = json.loads(res["content"])
             validate(instance=answer, schema=OutputSchema)
         except json.JSONDecodeError:
             logging.error(f"Response was not valid JSON for {word}: {res['content']}")
+            self.log_error(logs_path, word, res)
+
             return None
         except ValidationError:
             logging.error(f"Response did not match schema for {word}: {res['content']}")
+            self.log_error(logs_path, word, res)
+
             return None
         else:
             answer["word"] = word
