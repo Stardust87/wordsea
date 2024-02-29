@@ -12,18 +12,23 @@ version = "0.0.0"
 dependencies = [
     "accelerate",
     "beautifulsoup4",
-    "diffusers",
+    "click",
+    "diffusers @ git+https://github.com/huggingface/diffusers.git",
     "jinja2",
     "jsonschema",
+    "ninja",
     "mongoengine",
     "pandas",
     "peft",
     "requests",
     "sentencepiece",
     "tqdm",
-    "torch~=2.1.2",
+    "torch>=2.1.2",
     "transformers",
+    "triton>=2.1.0",
     "typesense",
+    "xformers>=0.0.22",
+    # "stable-fast @ git+https://github.com/chengzeyi/stable-fast.git",
 ]
 requires-python = ">=3.10"
 description = "Expand your vocabulary with wordsea!"

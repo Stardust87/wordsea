@@ -7,22 +7,19 @@ from diffusers import (
 )
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
+from sfast.compilers.diffusion_pipeline_compiler import CompilationConfig, compile
 
 
-def get_pipeline(model: str) -> DiffusionPipeline:
-    torch.backends.cuda.matmul.allow_tf32 = True
-
+def get_pipeline(model: str, optimize: bool = True) -> DiffusionPipeline:
     match model:
         case "playground":
             pipe = DiffusionPipeline.from_pretrained(
                 "playgroundai/playground-v2.5-1024px-aesthetic",
-                torch_dtype=torch.bfloat16,
+                torch_dtype=torch.float16,
                 use_safetensors=True,
                 add_watermarker=False,
                 variant="fp16",
             )
-
-            pipe.fuse_qkv_projections()
 
         case "lightning":
             base = "stabilityai/stable-diffusion-xl-base-1.0"
@@ -45,4 +42,13 @@ def get_pipeline(model: str) -> DiffusionPipeline:
             raise ValueError(f"model not supported: {model}")
 
     pipe.set_progress_bar_config(disable=True)
-    return pipe.to("cuda")
+    pipe.to("cuda")
+
+    if optimize:
+        config = CompilationConfig.Default()
+        config.enable_xformers = True
+        config.enable_triton = True
+        config.enable_cuda_graph = True
+        pipe = compile(pipe, config)
+
+    return pipe
