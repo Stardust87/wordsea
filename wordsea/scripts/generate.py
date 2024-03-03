@@ -1,3 +1,5 @@
+import json
+
 import click
 from tqdm import tqdm
 
@@ -31,6 +33,11 @@ def generate_image_prompts(model: str, words: list[str], silent: bool) -> None:
 
         if derived_word:
             derived_entry = Meaning.objects(word=derived_word)
+            derived_entry = [json.loads(entry.to_json()) for entry in derived_entry]
+            for meaning in derived_entry:
+                for sense in meaning["senses"]:
+                    sense["examples"] = []
+
             derived_html = render_definition(derived_entry)
             prompt = render_prompt_derived(word, html, derived_word, derived_html)
         else:
