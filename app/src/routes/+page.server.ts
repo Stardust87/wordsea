@@ -8,20 +8,22 @@ const random = (words: string[]) => {
 };
 
 export const load = async () => {
-	const availableWords: string[] = await mnemonics.distinct('word');
+	const randomWord = await mnemonics
+		.aggregate([{ $match: { image: { $exists: true } } }, { $sample: { size: 1 } }])
+		.toArray();
 
-	const randomWord = baseWords[random(baseWords)];
+	const dailyWord = baseWords[random(baseWords)];
 
 	const sampleMnemonics = await mnemonics
-		.aggregate([{ $match: { word: randomWord } }, { $sample: { size: 1 } }])
+		.aggregate([{ $match: { word: dailyWord } }, { $sample: { size: 1 } }])
 		.toArray();
 
 	const featured = sampleMnemonics[0];
 	featured.image = await loadImage(featured.image);
 
 	return {
-		availableWords: availableWords,
-		randomWord: randomWord,
+		randomWord: (JSON.parse(JSON.stringify(randomWord)) as Mnemonic[])[0].word,
+		dailyWord: dailyWord,
 		featured: JSON.parse(JSON.stringify(featured)) as Mnemonic,
 		title: 'WordSea • See the written',
 		description:

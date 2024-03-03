@@ -7,19 +7,15 @@ const db = client.db(MONGODB_DB_NAME);
 export const gridfs = new GridFSBucket(db);
 export const mnemonics = db.collection('mnemonics');
 export const meanings = db.collection('meanings');
-
-export const baseWords = await meanings
-	.aggregate([
-		{ $lookup: { from: 'mnemonics', localField: 'word', foreignField: 'word', as: 'mnemonics' } },
-		{
-			$match: {
-				derived_from: { $exists: false },
-				mnemonics: { $not: { $size: 0 }, $elemMatch: { image: { $exists: true } } }
-			}
-		},
-		{ $project: { word: true } },
-		{ $group: { _id: '$word' } },
-		{ $sort: { _id: 1 } }
-	])
-	.map((doc) => doc._id)
+let baseWords = await meanings
+	.find({ derived_from: { $exists: false } })
+	.map((doc) => doc.word)
 	.toArray();
+
+const wordsWithImage = await mnemonics
+	.find({ image: { $exists: true } })
+	.map((doc) => doc.word)
+	.toArray();
+
+baseWords = baseWords.filter((word) => wordsWithImage.includes(word));
+export { baseWords };
