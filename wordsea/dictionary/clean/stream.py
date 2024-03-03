@@ -35,6 +35,16 @@ class WikiRawStream:
             if "alt_of" in sense or "form_of" in sense or "glosses" not in sense:
                 continue
 
+            if "synonyms" in sense:
+                is_synonym_of = False
+                for synonym in sense["synonyms"]:
+                    if "synonym-of" in synonym.get("tags", []):
+                        is_synonym_of = True
+                        break
+
+                if is_synonym_of:
+                    continue
+
             gloss = sense["glosses"][0]
 
             if gloss not in new_senses:
