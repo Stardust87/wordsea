@@ -40,13 +40,13 @@ dev = ["ruff", "mypy"]
 wordsea = "wordsea:main"
 
 [tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
 ignore = ["C901", "E501"]
 select = ["B", "C", "E", "F", "I", "PD", "PTH", "RUF", "W"]
 ignore-init-module-imports = true
-target-version = "py310"
-
-[tool.ruff.isort]
-known-first-party = ["wordsea"]
+isort.known-first-party = ["wordsea"]
 
 [tool.mypy]
 disallow_untyped_calls = false

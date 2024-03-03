@@ -76,7 +76,7 @@ class LlamaCppAPI:
         res = requests.get(f"{self.base_url}/health").json()
         return res["status"] == "ok"
 
-    def log_error(self, path: Path, word: str, response: str) -> None:
+    def log_error(self, path: Path, word: str, response: dict[str, Any]) -> None:
         with Path(path / "errors.jsonl", encoding="utf-8").open("a") as f:
             message = {"word": word, "response": response["content"]}
             f.write(json.dumps(message) + "\n")
