@@ -1,10 +1,25 @@
 <script lang="ts">
-	export let word: string;
+	import { goto } from '$app/navigation';
+
+	const randomWord = async () => {
+		const response = await fetch('/api/random');
+		const data = await response.json();
+		goto(`/words/${data.word}`);
+	};
 </script>
 
-<div class="mt-16">
-	<a
-		class="rounded bg-cyan-600 px-4 py-1 font-medium text-white shadow-md hover:bg-cyan-800"
-		href="/words/{word}">{word}</a
+<button
+	on:click={randomWord}
+	class="h-8 w-10 justify-center rounded bg-gradient-to-r from-cyan-500 to-emerald-600 text-white shadow-md hover:from-cyan-700 hover:to-emerald-800"
+>
+	<svg
+		class="mx-auto my-auto size-6"
+		xmlns="http://www.w3.org/2000/svg"
+		viewBox="0 0 640 512"
+		fill="currentColor"
 	>
-</div>
+		<!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path
+			d="M274.9 34.3c-28.1-28.1-73.7-28.1-101.8 0L34.3 173.1c-28.1 28.1-28.1 73.7 0 101.8L173.1 413.7c28.1 28.1 73.7 28.1 101.8 0L413.7 274.9c28.1-28.1 28.1-73.7 0-101.8L274.9 34.3zM200 224a24 24 0 1 1 48 0 24 24 0 1 1 -48 0zM96 200a24 24 0 1 1 0 48 24 24 0 1 1 0-48zM224 376a24 24 0 1 1 0-48 24 24 0 1 1 0 48zM352 200a24 24 0 1 1 0 48 24 24 0 1 1 0-48zM224 120a24 24 0 1 1 0-48 24 24 0 1 1 0 48zm96 328c0 35.3 28.7 64 64 64H576c35.3 0 64-28.7 64-64V256c0-35.3-28.7-64-64-64H461.7c11.6 36 3.1 77-25.4 105.5L320 413.8V448zM480 328a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
+		/></svg
+	>
+</button>

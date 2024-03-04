@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ThemeSwitch from './themeSwitch.svelte';
 	import Search from './search.svelte';
+	import RandomWordButton from './randomWordButton.svelte';
 </script>
 
 <nav
@@ -12,6 +13,11 @@
 			<span class="self-center whitespace-nowrap text-xl font-semibold">WordSea</span>
 		</a>
 		<ThemeSwitch />
-		<Search />
+		<div
+			class="flex w-full grow items-center gap-x-2 min-[480px]:mx-3 min-[480px]:w-auto sm:w-96 sm:grow-0"
+		>
+			<Search />
+			<RandomWordButton />
+		</div>
 	</div>
 </nav>

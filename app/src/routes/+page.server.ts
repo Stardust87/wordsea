@@ -8,10 +8,6 @@ const random = (words: string[]) => {
 };
 
 export const load = async () => {
-	const randomWord = await mnemonics
-		.aggregate([{ $match: { image: { $exists: true } } }, { $sample: { size: 1 } }])
-		.toArray();
-
 	const dailyWord = baseWords[random(baseWords)];
 
 	const sampleMnemonics = await mnemonics
@@ -22,7 +18,6 @@ export const load = async () => {
 	featured.image = await loadImage(featured.image);
 
 	return {
-		randomWord: (JSON.parse(JSON.stringify(randomWord)) as Mnemonic[])[0].word,
 		dailyWord: dailyWord,
 		featured: JSON.parse(JSON.stringify(featured)) as Mnemonic,
 		title: 'WordSea • See the written',
