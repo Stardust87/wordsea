@@ -20,7 +20,6 @@
 	};
 </script>
 
-<!-- shadow-[0px_5px_20px_5px_#00000024] -->
 <ol class="list-roman min-w-prose list-inside">
 	{#each meanings as meaning}
 		<div
