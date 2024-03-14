@@ -1,5 +1,6 @@
 logs/
 typesense-data/
+*.archive
 
 .ruff_cache
 .DS_Store
