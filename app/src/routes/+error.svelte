@@ -10,5 +10,5 @@
 		</h1>
 		<a href="/">Go to <span class="underline"> Home Page</span></a>
 	</div>
-	<img class=" max-w-full rounded-lg shadow-xl duration-300" src="/error.png" alt="Error page" />
+	<img class=" max-w-full rounded-lg shadow-xl duration-300" src="/error.jpg" alt="Error page" />
 </div>
