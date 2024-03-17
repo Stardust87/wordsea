@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="http://localhost:5173/" target="_blank">
+  <a href="https://wordsea.xyz/" target="_blank">
     <picture>
       <img src="assets/logo.png" alt="WordSea logo" width="120" height="120" />
     </picture>
@@ -11,8 +11,7 @@
   Let written be seen
 </h2>
 
-WordSea is a web application designed to help learn new English words. Core idea is to 
-
+WordSea is a web application designed to help learn new English words. Core idea is to
 
 ## Installation
 
@@ -23,8 +22,8 @@ npm install
 
 ```
 
-
 ## Word cards
+
 <h2 >
     <picture>
       <img src="assets/slapdash.jpg" alt="slapdash meaning"/>

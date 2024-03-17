@@ -88,7 +88,7 @@ def generate(words: list[str], model: str, new: bool, limit: int, silent: bool) 
 
     with MongoDB():
         if not words:
-            words = Meaning.objects(derived_from__exists=False).distinct("word")
+            words = Meaning.objects(derived_from__exists=True).distinct("word")
         else:
             words = parse_input_words(words)
 
@@ -97,9 +97,16 @@ def generate(words: list[str], model: str, new: bool, limit: int, silent: bool) 
             words = [word for word in words if word not in generated]
 
         if limit is not None:
-            words = [
-                word for word in words if Mnemonic.objects(word=word).count() < limit
+            pipeline = [
+                {"$group": {"_id": "$word", "count": {"$sum": 1}}},
+                {"$match": {"count": {"$lt": limit}}},
+                {"$project": {"_id": 0, "word": "$_id", "count": 1}},
             ]
+            mnemonic_counts = {
+                obj["word"]: obj["count"]
+                for obj in Mnemonic.objects().aggregate(pipeline)
+            }
+            words = [word for word in words if word in mnemonic_counts]
 
         if not words:
             click.echo("all prompts are already generated")
