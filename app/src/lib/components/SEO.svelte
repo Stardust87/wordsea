@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	export let data: {
 		title: string;
@@ -8,6 +9,10 @@
 	};
 
 	const image = `data:image/webp;base64,${data.image}`;
+	let origin = '';
+	onMount(() => {
+		origin = window.location.origin;
+	});
 </script>
 
 <svelte:head>
@@ -17,10 +22,10 @@
 	<meta property="og:description" content={data.description} />
 	<meta property="og:image" content={image} />
 	<meta property="og:type" content="website" />
-	<!-- <meta property="og:url" content={data.url} /> -->
+	<meta property="og:url" content={origin + $page.url.pathname} />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={data.title} />
 	<meta name="twitter:description" content={data.description} />
 	<meta name="twitter:image" content={image} />
-	<link rel="canonical" href={$page.url.pathname} />
+	<link rel="canonical" href={origin + $page.url.pathname} />
 </svelte:head>

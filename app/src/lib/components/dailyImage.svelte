@@ -8,7 +8,7 @@
 	<div class="relative my-auto">
 		<a href="/words/{word}" class="rounded-lg">
 			<img
-				class=" max-w-full rounded-lg shadow-xl duration-300"
+				class=" h-auto max-w-full rounded-lg shadow-xl duration-300"
 				src="data:image/webp;base64,{featured.image}"
 				alt={featured.prompt}
 			/>
