@@ -11,16 +11,42 @@
   Let written be seen
 </h2>
 
-WordSea is a web application designed to help learn new English words. Core idea is to
+WordSea is a SvelteKit web application designed to help memorize new English words. You can check it on [wordsea.xyz](https://wordsea.xyz/).
 
-## Installation
+ Core idea is to discover words in a mnemonic way by associating words with their definition-based visualizations.
+ 
+ Only small subset of words has clear visual representation (e.g. apple, parachute), so the rest (e.g. imagine, eon) need to be tackled differently. 
 
+## Setup
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/)
+- [Node.js](https://nodejs.org/en/)
+
+Start by cloning the repository
 ```bash
 git clone https://github.com/Stardust87/wordsea
 cd wordsea
-npm install
-
 ```
+
+### Application
+```bash
+cd app
+npm install
+cd ..
+docker compose up
+```
+
+### Database
+
+Data is stored in MongoDB and its dump is available for download [here](https://mega.nz/file/h8k00b7J#xAdZlAQeWzNCLwL1hFfKhafU2sbZCrLgHaaf8D1CnJg).
+
+Check the container id and restore the dump 
+```bash
+docker exec -i [container_id] mongorestore --gzip --nsInclude="wordsea.*" --archive < [dump_path]
+```
+
 
 ## Word cards
 
