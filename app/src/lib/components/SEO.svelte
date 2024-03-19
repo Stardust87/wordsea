@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { PUBLIC_BEAM_DATA_TOKEN } from '$env/static/public';
 
 	export let data: {
 		title: string;
@@ -28,4 +29,10 @@
 	<meta name="twitter:description" content={data.description} />
 	<meta name="twitter:image" content={image} />
 	<link rel="canonical" href={origin + $page.url.pathname} />
+
+	<script
+		src="https://beamanalytics.b-cdn.net/beam.min.js"
+		data-token={PUBLIC_BEAM_DATA_TOKEN}
+		async
+	></script>
 </svelte:head>
