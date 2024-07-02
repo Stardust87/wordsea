@@ -20,17 +20,19 @@
 			<p class="font-bold">{featured.explanation.replace('prompt', 'image')}</p>
 		</div>
 	</div>
-	<div class="grid grid-cols-4 gap-2">
-		{#each mnemonics as mnemo}
-			{#if mnemo._id !== featured._id}
-				<button class="h-auto max-w-full" on:click={() => (featured = mnemo)}>
-					<img
-						class="rounded-lg shadow-md duration-300 hover:brightness-50"
-						src="data:image/webp;base64,{mnemo.image}"
-						alt={mnemo.prompt}
-					/></button
-				>
-			{/if}
-		{/each}
-	</div>
+	{#if mnemonics.length > 1}
+		<div class="grid grid-cols-4 gap-2">
+			{#each mnemonics as mnemo}
+				{#if mnemo._id !== featured._id}
+					<button class="h-auto max-w-full" on:click={() => (featured = mnemo)}>
+						<img
+							class="rounded-lg shadow-md duration-300 hover:brightness-50"
+							src="data:image/webp;base64,{mnemo.image}"
+							alt={mnemo.prompt}
+						/></button
+					>
+				{/if}
+			{/each}
+		</div>
+	{/if}
 </div>

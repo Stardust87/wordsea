@@ -17,6 +17,7 @@
 		"@sveltejs/adapter-node": "^5.0.1",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+		"@types/chance": "^1.1.6",
 		"@types/eslint": "8.56.0",
 		"@types/node": "^20.11.9",
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
@@ -39,6 +40,7 @@
 	"dependencies": {
 		"@babel/runtime": "^7.23.9",
 		"algoliasearch": "^4.22.1",
+		"chance": "^1.1.11",
 		"instantsearch.js": "^4.65.0",
 		"mongodb": "^6.3.0",
 		"typesense-instantsearch-adapter": "^2.7.1"
