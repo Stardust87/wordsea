@@ -75,12 +75,20 @@ def generate_image_prompts(model: str, words: list[str], silent: bool) -> None:
     help="generate prompts for words with less than this number of images",
 )
 @click.option(
+    "-d",
+    "--derived",
+    is_flag=True,
+    help="whether to generate prompts only for derived words",
+)
+@click.option(
     "-s",
     "--silent",
     is_flag=True,
     help="whether to suppress the finding progress bar",
 )
-def generate(words: list[str], model: str, new: bool, limit: int, silent: bool) -> None:
+def generate(
+    words: list[str], model: str, new: bool, limit: int, derived: bool, silent: bool
+) -> None:
     """Generate image prompts for words.
 
     WORDS (list[str]): words to generate prompts for - every entity can be either a word or a path to a file with words separated by newlines
@@ -88,7 +96,7 @@ def generate(words: list[str], model: str, new: bool, limit: int, silent: bool) 
 
     with MongoDB():
         if not words:
-            words = Meaning.objects(derived_from__exists=True).distinct("word")
+            words = Meaning.objects(derived_from__exists=derived).distinct("word")
         else:
             words = parse_input_words(words)
 
