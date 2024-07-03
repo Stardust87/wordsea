@@ -1,12 +1,5 @@
 import torch
-from diffusers import (
-    DiffusionPipeline,
-    EulerDiscreteScheduler,
-    StableDiffusionXLPipeline,
-    UNet2DConditionModel,
-)
-from huggingface_hub import hf_hub_download
-from safetensors.torch import load_file
+from diffusers import DiffusionPipeline
 from sfast.compilers.diffusion_pipeline_compiler import CompilationConfig, compile
 
 
@@ -19,23 +12,6 @@ def get_pipeline(model: str, optimize: bool = True) -> DiffusionPipeline:
                 use_safetensors=True,
                 add_watermarker=False,
                 variant="fp16",
-            )
-
-        case "lightning":
-            base = "stabilityai/stable-diffusion-xl-base-1.0"
-            repo = "ByteDance/SDXL-Lightning"
-            ckpt = "sdxl_lightning_8step_unet.safetensors"
-
-            unet = UNet2DConditionModel.from_config(
-                UNet2DConditionModel.load_config(base, subfolder="unet")
-            ).to("cuda", torch.float16)
-            unet.load_state_dict(load_file(hf_hub_download(repo, ckpt), device="cuda"))
-            pipe = StableDiffusionXLPipeline.from_pretrained(
-                base, unet=unet, torch_dtype=torch.float16, variant="fp16"
-            )
-
-            pipe.scheduler = EulerDiscreteScheduler.from_config(
-                pipe.scheduler.config, timestep_spacing="trailing"
             )
 
         case _:

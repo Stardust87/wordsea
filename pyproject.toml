@@ -13,7 +13,7 @@ dependencies = [
     "accelerate",
     "beautifulsoup4",
     "click",
-    "diffusers @ git+https://github.com/huggingface/diffusers.git",
+    "diffusers",
     "jinja2",
     "jsonschema",
     "ninja",
@@ -27,6 +27,7 @@ dependencies = [
     "transformers",
     "triton>=2.1.0",
     "typesense",
+    "wheel",
     "xformers>=0.0.22",
     # "stable-fast @ git+https://github.com/chengzeyi/stable-fast.git",
 ]

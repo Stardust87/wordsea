@@ -11,11 +11,7 @@ from wordsea.gen import get_pipeline, parse_input_words
 PARAMETERS = {
     "playground": {
         "num_inference_steps": 50,
-        "guidance_scale": 3.0,
-    },
-    "lightning": {
-        "num_inference_steps": 8,
-        "guidance_scale": 0.0,
+        "guidance_scale": 7.0,
     },
 }
 

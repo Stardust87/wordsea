@@ -39,10 +39,12 @@ class LLMParams:
 
 
 MixtralParams = LLMParams(template="[INST] {prompt} [/INST]")
-MistralParams = LLMParams(template="[INST] {prompt} [/INST]")
-QwenParams = LLMParams(
-    template="<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant",
-    dynatemp_range=0.2,
+Gemma2Params = LLMParams(
+    template="<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n",
+    stop=["<end_of_turn>"],
+    top_k=100,
+    temperature=0.9,
+    dynatemp_range=0.3,
 )
 
 OutputSchema = {
@@ -63,10 +65,8 @@ class LlamaCppAPI:
         match model:
             case "mixtral":
                 self.params = asdict(MixtralParams)
-            case "mistral":
-                self.params = asdict(MistralParams)
-            case "qwen":
-                self.params = asdict(QwenParams)
+            case "gemma2":
+                self.params = asdict(Gemma2Params)
             case _:
                 raise ValueError(f"Unknown model: {model}")
 
