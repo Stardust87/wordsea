@@ -8,11 +8,8 @@ const db = client.db(MONGODB_DB_NAME);
 export const gridfs = new GridFSBucket(db);
 export const mnemonics = db.collection('mnemonics');
 export const meanings = db.collection('meanings');
-let baseWords = await meanings
-	.find({ derived_from: { $exists: false } })
-	.map((doc) => doc.word)
-	.toArray();
 
+let baseWords = await meanings.distinct('word', { derived_from: { $exists: false } });
 const wordsWithImage = await mnemonics
 	.find({ image: { $exists: true } })
 	.map((doc) => doc.word)
