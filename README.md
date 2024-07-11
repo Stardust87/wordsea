@@ -46,7 +46,7 @@ docker compose up
 
 ### Database
 
-Data is stored in MongoDB and its dump is available for download [here](https://mega.nz/file/o8kgkZjY#0xBTKQoCT4MPn8-pZ-rsgE2pJj-KDuudvCHe6FMmoew).
+Data is stored in MongoDB and its dump is available for download [here](https://mega.nz/folder/0ptTzCKA#adv2fpwTG0Prxe9zjdApqg).
 
 Check the container id and restore the dump
 
