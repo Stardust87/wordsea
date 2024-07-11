@@ -1,7 +1,3 @@
-<script lang="ts">
-	import { goto } from '$app/navigation';
-</script>
-
 <div class=" m-auto w-full md:w-1/2">
 	<h1
 		class="mb-4 text-4xl font-extrabold text-gray-900 drop-shadow-xl md:text-4xl lg:text-6xl dark:text-white"

@@ -3,7 +3,7 @@ import type { Mnemonic } from '$lib/types/Mnemonic';
 import type { Meaning } from '$lib/types/Meaning';
 import { loadImage, loadDerivatives } from '$lib/server/loader.js';
 
-export const load = async ({ params }) => {
+export const load = async ({ url, params }) => {
 	const { word } = params;
 	let word_meanings = await meanings.find({ word }).toArray();
 
@@ -35,6 +35,8 @@ export const load = async ({ params }) => {
 		)
 		.join(' ');
 
+	const ogImageUrl = `${url.origin}/api/image?word=${word}&index=0`;
+
 	return {
 		...params,
 		mnemonics: word_mnemonics as Mnemonic[],
@@ -42,6 +44,6 @@ export const load = async ({ params }) => {
 		derivatives: derivatives ? derivatives : [],
 		title: `${word} meaning • WordSea`,
 		description: description,
-		image: word_mnemonics.length > 0 ? word_mnemonics[0].image : undefined
+		image: ogImageUrl
 	};
 };

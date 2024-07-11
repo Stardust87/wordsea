@@ -8,7 +8,6 @@
 		image: string;
 	};
 
-	const image = `data:image/webp;base64,${data.image}`;
 	let origin = '';
 	onMount(() => {
 		origin = window.location.origin;
@@ -20,12 +19,12 @@
 	<meta name="description" content={data.description} />
 	<meta property="og:title" content={data.title} />
 	<meta property="og:description" content={data.description} />
-	<meta property="og:image" content={image} />
+	<meta property="og:image" content={data.image} />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content={origin + $page.url.pathname} />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={data.title} />
 	<meta name="twitter:description" content={data.description} />
-	<meta name="twitter:image" content={image} />
+	<meta name="twitter:image" content={data.image} />
 	<link rel="canonical" href={origin + $page.url.pathname} />
 </svelte:head>

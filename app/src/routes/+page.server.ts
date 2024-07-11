@@ -7,15 +7,19 @@ const random = (words: string[]) => {
 	return (date.getFullYear() * date.getDate() * (date.getMonth() + 1)) % words.length;
 };
 
-export const load = async () => {
+export const load = async ({ url }) => {
 	const dailyWord = baseWords[random(baseWords)];
 
-	const sampleMnemonics = await mnemonics
-		.aggregate([{ $match: { word: dailyWord } }, { $sample: { size: 1 } }])
+	const dailyMnemonics = await mnemonics
+		.find({ word: dailyWord })
+		.sort({ $natural: -1 })
+		.limit(1)
 		.toArray();
 
-	const featured = sampleMnemonics[0];
+	const featured = dailyMnemonics[0];
 	featured.image = await loadImage(featured.image);
+
+	const ogImageUrl = `${url.origin}/api/image?word=${dailyWord}&index=0`;
 
 	return {
 		dailyWord: dailyWord,
@@ -23,6 +27,6 @@ export const load = async () => {
 		title: 'WordSea • See the written',
 		description:
 			'Discover the dictionary featuring mnemonic images, definitions, pronunciation, audio recordings, and word derivatives. Enhance your vocabulary retention effortlessly while grasping the true essence of each word.',
-		image: featured.image
+		image: ogImageUrl
 	};
 };
