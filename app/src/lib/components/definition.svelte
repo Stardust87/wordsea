@@ -23,7 +23,7 @@
 <ol class="list-roman min-w-prose list-inside">
 	{#each meanings as meaning}
 		<div
-			class="mb-4 rounded-md bg-white p-2 shadow-[0_3px_5px_rgb(0,0,0,0.2)] dark:bg-slate-700/50 dark:shadow-sm"
+			class="mb-4 rounded-md bg-slate-50 p-2 shadow-[0_3px_5px_rgb(0,0,0,0.2)] dark:bg-slate-700/50 dark:shadow-sm"
 		>
 			<li class="text-xl">
 				<span class="italic">{meaning.pos} </span>
