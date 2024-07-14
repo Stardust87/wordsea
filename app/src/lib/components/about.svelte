@@ -36,8 +36,7 @@
 		definitions.
 	</p>
 	<p class="mt-4 text-gray-400 dark:text-gray-500">
-		Our mnemonics are crafted using State-of-the-Art Generative AI, ensuring an immersive learning
-		experience tailored to enhance retention.
+		Our mnemonics are created using Generative AI and may not always be accurate.
 	</p>
 
 	<p
