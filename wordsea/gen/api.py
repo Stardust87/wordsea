@@ -7,6 +7,8 @@ from typing import Any
 import requests
 from jsonschema import ValidationError, validate
 
+from wordsea.constants import LOGS_PATH, PromptModel
+
 JSON_GRAMMAR = r"""root ::= ImagePrompt
 ImagePrompt ::= "{"   ws   "\"explanation\":"   ws   string   ","   ws   "\"prompt\":"   ws   string   "}"
 ImagePromptlist ::= "[]" | "["   ws   ImagePrompt   (","   ws   ImagePrompt)*   "]"
@@ -22,9 +24,9 @@ numberlist ::= "["   ws   "]" | "["   ws   string   (","   ws   number)*   ws   
 @dataclass
 class LLMParams:
     n_predict: int = 1024
-    temperature: float = 0.8
+    temperature: float = 0.7
     top_p: float = 1.0
-    top_k: int = 40
+    top_k: int = 100
     min_p: float = 0.02
     presence_penalty: float = 0.0
     dynatemp_range: float = 0.3
@@ -38,13 +40,10 @@ class LLMParams:
         self.stop.append("}")
 
 
-MixtralParams = LLMParams(template="[INST] {prompt} [/INST]")
+MistralNemoParams = LLMParams(template="[INST] {prompt} [/INST]")
 Gemma2Params = LLMParams(
     template="<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n",
     stop=["<end_of_turn>"],
-    top_k=100,
-    temperature=0.7,
-    dynatemp_range=0.3,
 )
 
 OutputSchema = {
@@ -59,13 +58,13 @@ OutputSchema = {
 
 
 class LlamaCppAPI:
-    def __init__(self, url: str, model: str = "mixtral") -> None:
+    def __init__(self, url: str, model: PromptModel) -> None:
         self.base_url = url
 
         match model:
-            case "mixtral":
-                self.params = asdict(MixtralParams)
-            case "gemma2":
+            case PromptModel.MISTRAL_NEMO:
+                self.params = asdict(MistralNemoParams)
+            case PromptModel.GEMMA2:
                 self.params = asdict(Gemma2Params)
             case _:
                 raise ValueError(f"Unknown model: {model}")
@@ -93,20 +92,17 @@ class LlamaCppAPI:
         ).json()
         res["content"] += "}"
 
-        logs_path = Path("logs")
-        logs_path.mkdir(exist_ok=True)
-
         try:
             answer = json.loads(res["content"])
             validate(instance=answer, schema=OutputSchema)
         except json.JSONDecodeError:
             logging.error(f"Response was not valid JSON for {word}: {res['content']}")
-            self.log_error(logs_path, word, res)
+            self.log_error(LOGS_PATH, word, res)
 
             return None
         except ValidationError:
             logging.error(f"Response did not match schema for {word}: {res['content']}")
-            self.log_error(logs_path, word, res)
+            self.log_error(LOGS_PATH, word, res)
 
             return None
         else:

@@ -3,7 +3,7 @@ import json
 import click
 from tqdm import tqdm
 
-from wordsea.constants import LLAMACPP_URL
+from wordsea.constants import LLAMACPP_URL, LOGS_PATH, PromptModel
 from wordsea.db import Meaning, Mnemonic, MongoDB
 from wordsea.dictionary import find_words
 from wordsea.gen import (
@@ -15,7 +15,9 @@ from wordsea.gen import (
 )
 
 
-def generate_image_prompts(model: str, words: list[str], silent: bool) -> None:
+def generate_image_prompts(
+    model: PromptModel, words: list[str], silent: bool, save_to_file: bool
+) -> None:
     api = LlamaCppAPI(url=LLAMACPP_URL, model=model)
     if not api.health():
         raise RuntimeError("API is not healthy")
@@ -47,13 +49,19 @@ def generate_image_prompts(model: str, words: list[str], silent: bool) -> None:
         if answer is None:
             continue
 
-        mnemonic = Mnemonic(
-            word=word,
-            explanation=answer["explanation"],
-            prompt=answer["prompt"],
-            language_model=model,
-        )
-        mnemonic.save()
+        if not save_to_file:
+            mnemonic = Mnemonic(
+                word=word,
+                explanation=answer["explanation"],
+                prompt=answer["prompt"],
+                language_model=model,
+            )
+            mnemonic.save()
+        else:
+            output_path = LOGS_PATH / "prompts" / model / f"{word}.json"
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            with output_path.open("w") as f:
+                json.dump(answer, f, indent=2)
 
 
 @click.command()
@@ -86,8 +94,19 @@ def generate_image_prompts(model: str, words: list[str], silent: bool) -> None:
     is_flag=True,
     help="whether to suppress the finding progress bar",
 )
+@click.option(
+    "--save-to-file",
+    is_flag=True,
+    help="whether to save the generated prompts to a file instead of the database",
+)
 def generate(
-    words: list[str], model: str, new: bool, limit: int, derived: bool, silent: bool
+    words: list[str],
+    model: PromptModel,
+    new: bool,
+    limit: int,
+    derived: bool,
+    silent: bool,
+    save_to_file: bool,
 ) -> None:
     """Generate image prompts for words.
 
@@ -120,4 +139,4 @@ def generate(
             click.echo("all prompts are already generated")
             exit(0)
 
-        generate_image_prompts(model, words, silent)
+        generate_image_prompts(model, words, silent, save_to_file)

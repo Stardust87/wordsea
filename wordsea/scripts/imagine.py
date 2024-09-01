@@ -5,6 +5,7 @@ import click
 import torch
 from tqdm import tqdm
 
+from wordsea.constants import ImageModel
 from wordsea.db import Image, Mnemonic, MongoDB
 from wordsea.gen import get_pipeline, parse_input_words
 
@@ -12,6 +13,10 @@ PARAMETERS = {
     "playground": {
         "num_inference_steps": 50,
         "guidance_scale": 7.0,
+    },
+    "flux-schnell": {
+        "num_inference_steps": 5,
+        "guidance_scale": 0.0,
     },
 }
 
@@ -22,7 +27,7 @@ PARAMETERS = {
     "-m", "--model", type=str, default="playground", help="text2image model to use"
 )
 @click.option("-s", "--seed", type=int, help="random seed")
-def imagine(words: Optional[list[str]], model: str, seed: int) -> None:
+def imagine(words: Optional[list[str]], model: ImageModel, seed: int) -> None:
     """Generate image for words.
 
     WORDS: (list[str]): words to generate image for - every entity can be either a word or a path to a file with words separated by newlines
@@ -57,13 +62,12 @@ def imagine(words: Optional[list[str]], model: str, seed: int) -> None:
                 prompt=mnemo.prompt,
                 generator=generator,
                 num_images_per_prompt=1,
-                height=1024,
-                width=1024,
+                height=768,
+                width=768,
                 **PARAMETERS[model],
             ).images[0]
 
             with io.BytesIO() as buf:
-                image = image.resize((768, 768))
                 image.save(buf, format="webp", optimize=True, quality=85)
                 image_db = Image()
                 image_db.data.put(buf.getvalue(), content_type="image/webp")
