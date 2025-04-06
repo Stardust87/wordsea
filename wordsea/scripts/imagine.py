@@ -15,7 +15,7 @@ PARAMETERS = {
         "guidance_scale": 7.0,
     },
     "flux-schnell": {
-        "num_inference_steps": 5,
+        "num_inference_steps": 6,
         "guidance_scale": 0.0,
     },
 }

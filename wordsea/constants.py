@@ -10,6 +10,7 @@ LOGS_PATH.mkdir(parents=True, exist_ok=True)
 
 
 class PromptModel(StrEnum):
+    GEMMA3 = "gemma3"
     GEMMA2 = "gemma2"
     MISTRAL_NEMO = "mistral-nemo"
 

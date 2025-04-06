@@ -36,6 +36,18 @@ class LowMemoryFluxPipeline:
             text_encoder=None,
         )
         self.pipeline.enable_model_cpu_offload()
+        self.pipeline.set_progress_bar_config(disable=True)
+
+    def encode_text(self, prompt: str) -> tuple[torch.Tensor, torch.Tensor]:
+        (
+            prompt_embeds,
+            pooled_prompt_embeds,
+            _,
+        ) = self.text_encoder.encode_prompt(
+            prompt=prompt, prompt_2=None, max_sequence_length=256
+        )
+
+        return prompt_embeds, pooled_prompt_embeds
 
     @torch.inference_mode()
     def inference(
@@ -49,13 +61,7 @@ class LowMemoryFluxPipeline:
         generator=None,
     ):
         self.text_encoder.to("cuda")
-        (
-            prompt_embeds,
-            pooled_prompt_embeds,
-            _,
-        ) = self.text_encoder.encode_prompt(
-            prompt=prompt, prompt_2=None, max_sequence_length=256
-        )
+        prompt_embeds, pooled_prompt_embeds = self.encode_text(prompt)
         self.text_encoder.to("cpu")
         flush()
         output = self.pipeline(
@@ -64,12 +70,11 @@ class LowMemoryFluxPipeline:
             width=width,
             height=height,
             guidance_scale=guidance_scale,
-            num_images_per_prompt=1,
+            num_images_per_prompt=num_images_per_prompt,
             num_inference_steps=num_inference_steps,
             generator=generator,
         )
-        image = output.images[0]
-        return image
+        return output
 
     def __call__(self, *args, **kwargs):
         return self.inference(*args, **kwargs)
@@ -90,7 +95,8 @@ def get_pipeline(model: ImageModel) -> DiffusionPipeline:
         case _:
             raise ValueError(f"model not supported: {model}")
 
-    pipe.set_progress_bar_config(disable=True)
-    pipe.to("cuda")
+    if model != ImageModel.FLUX_SCHNELL:
+        pipe.set_progress_bar_config(disable=True)
+        pipe.to("cuda")
 
     return pipe

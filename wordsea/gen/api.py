@@ -31,7 +31,7 @@ class LLMParams:
     presence_penalty: float = 0.0
     dynatemp_range: float = 0.3
     frequency_penalty: float = 0.0
-    repeat_penalty: float = 1.0
+    repeat_penalty: float = 1.05
     penalize_nl: bool = False
     stop: list[str] = field(default_factory=lambda: ["</s>"])
     template: str = "{prompt}"
@@ -42,8 +42,17 @@ class LLMParams:
 
 MistralNemoParams = LLMParams(template="[INST] {prompt} [/INST]")
 Gemma2Params = LLMParams(
-    template="<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n",
+    template="<bos><start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n",
     stop=["<end_of_turn>"],
+)
+Gemma3Params = LLMParams(
+    template="<bos><start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n",
+    stop=["<end_of_turn>"],
+    temperature=1.1,
+    top_p=0.95,
+    top_k=64,
+    min_p=0.03,
+    dynatemp_range=0.1,
 )
 
 OutputSchema = {
@@ -66,6 +75,8 @@ class LlamaCppAPI:
                 self.params = asdict(MistralNemoParams)
             case PromptModel.GEMMA2:
                 self.params = asdict(Gemma2Params)
+            case PromptModel.GEMMA3:
+                self.params = asdict(Gemma3Params)
             case _:
                 raise ValueError(f"Unknown model: {model}")
 

@@ -29,9 +29,10 @@ dependencies = [
     "typesense",
     "wheel",
     "xformers>=0.0.22",
-    # "stable-fast @ git+https://github.com/chengzeyi/stable-fast.git",
+    "protobuf>=6.30.2",
+    "setuptools>=78.1.0",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 description = "Expand your vocabulary with wordsea!"
 
 [project.optional-dependencies]
@@ -41,7 +42,7 @@ dev = ["ruff", "mypy"]
 wordsea = "wordsea:main"
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py312"
 
 [tool.ruff.lint]
 ignore = ["C901", "E501"]
