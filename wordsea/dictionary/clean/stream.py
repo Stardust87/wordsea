@@ -89,7 +89,7 @@ class WikiRawStream:
                 pbar.set_postfix(
                     {
                         "pct_valid": f"{len(meanings) / (idx + 1):.2%}",
-                        "n_valid": f"{len(meanings)/1000:.1f}K",
+                        "n_valid": f"{len(meanings) / 1000:.1f}K",
                     }
                 )
                 entry = json.loads(line)

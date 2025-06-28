@@ -8,13 +8,13 @@ from transformers import T5EncoderModel
 from wordsea.constants import ImageModel
 
 
-def flush():
+def flush() -> None:
     gc.collect()
     torch.cuda.empty_cache()
 
 
 class LowMemoryFluxPipeline:
-    def __init__(self):
+    def __init__(self) -> None:
         self.t5_encoder = T5EncoderModel.from_pretrained(
             "black-forest-labs/FLUX.1-schnell",
             subfolder="text_encoder_2",

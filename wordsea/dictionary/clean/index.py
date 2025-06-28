@@ -11,7 +11,7 @@ def create_typesense_index() -> None:
             "nodes": [
                 {
                     "host": "localhost",
-                    "port": "8108",
+                    "port": 8108,
                     "protocol": "http",
                 }
             ],

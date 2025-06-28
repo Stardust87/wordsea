@@ -1,10 +1,6 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["wordsea"]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "wordsea"
@@ -23,20 +19,25 @@ dependencies = [
     "requests",
     "sentencepiece",
     "tqdm",
-    "torch>=2.1.2",
+    "torch>=2.7.1",
     "transformers",
     "triton>=2.1.0",
     "typesense",
     "wheel",
     "xformers>=0.0.22",
     "protobuf>=6.30.2",
-    "setuptools>=78.1.0",
 ]
 requires-python = ">=3.12"
 description = "Expand your vocabulary with wordsea!"
 
-[project.optional-dependencies]
-dev = ["ruff", "mypy"]
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "ruff>=0.11.4",
+    "tox>=4.27.0",
+    "tox-uv>=1.26.1",
+    "types-requests>=2.32.4.20250611",
+]
 
 [project.scripts]
 wordsea = "wordsea:main"
@@ -47,10 +48,10 @@ target-version = "py312"
 [tool.ruff.lint]
 ignore = ["C901", "E501"]
 select = ["B", "C", "E", "F", "I", "PD", "PTH", "RUF", "W"]
-ignore-init-module-imports = true
 isort.known-first-party = ["wordsea"]
 
 [tool.mypy]
+files = "wordsea/**/*.py"
 disallow_untyped_calls = false
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
