@@ -5,7 +5,7 @@ import click
 import torch
 from tqdm import tqdm
 
-from wordsea.constants import ImageModel
+from wordsea.config import ImageModel
 from wordsea.db import Image, Mnemonic, MongoDB
 from wordsea.gen import get_pipeline, parse_input_words
 

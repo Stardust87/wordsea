@@ -2,12 +2,13 @@ from typing import Any
 
 from mongoengine import connect
 
-from wordsea.constants import MONGODB_URL
+from wordsea.config import settings
 
 
 class MongoDB:
-    def __init__(self, url: str = MONGODB_URL) -> None:
-        self.client = connect("wordsea", host=url)
+    def __init__(self, url: str | None = None) -> None:
+        database_url = url if url is not None else settings.mongodb_url
+        self.client = connect("wordsea", host=database_url)
 
     def __enter__(self) -> "MongoDB":
         return self

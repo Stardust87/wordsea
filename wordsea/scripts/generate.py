@@ -3,11 +3,11 @@ import json
 import click
 from tqdm import tqdm
 
-from wordsea.constants import LLAMACPP_URL, LOGS_PATH, PromptModel
+from wordsea.config import settings
 from wordsea.db import Meaning, Mnemonic, MongoDB
 from wordsea.dictionary import find_words
 from wordsea.gen import (
-    LlamaCppAPI,
+    OpenAIAPI,
     parse_input_words,
     render_definition,
     render_prompt,
@@ -16,9 +16,9 @@ from wordsea.gen import (
 
 
 def generate_image_prompts(
-    model: PromptModel, words: list[str], silent: bool, save_to_file: bool
+    words: list[str], silent: bool, save_to_file: bool, model: str = "mistral-small-3.2"
 ) -> None:
-    api = LlamaCppAPI(url=LLAMACPP_URL, model=model)
+    api = OpenAIAPI(model=model)
     if not api.health():
         raise RuntimeError("API is not healthy")
 
@@ -58,7 +58,9 @@ def generate_image_prompts(
             )
             mnemonic.save()
         else:
-            output_path = LOGS_PATH / "prompts" / model / f"{word}.json"
+            output_path = (
+                settings.logs_path_created / "prompts" / model / f"{word}.json"
+            )
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with output_path.open("w") as f:
                 json.dump(answer, f, indent=2)
@@ -66,9 +68,7 @@ def generate_image_prompts(
 
 @click.command()
 @click.argument("words", nargs=-1, type=str, required=False)
-@click.option(
-    "-m", "--model", type=str, default="mixtral", help="language model to use"
-)
+@click.option("-m", "--model", type=str, default="mistral-small-3.2", help="LLM to use")
 @click.option(
     "-n",
     "--new",
@@ -101,7 +101,7 @@ def generate_image_prompts(
 )
 def generate(
     words: list[str],
-    model: PromptModel,
+    model: str,
     new: bool,
     limit: int,
     derived: bool,
@@ -139,4 +139,4 @@ def generate(
             click.echo("all prompts are already generated")
             exit(0)
 
-        generate_image_prompts(model, words, silent, save_to_file)
+        generate_image_prompts(words, silent, save_to_file, model)

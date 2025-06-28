@@ -11,7 +11,6 @@ dependencies = [
     "click",
     "diffusers",
     "jinja2",
-    "jsonschema",
     "ninja",
     "mongoengine",
     "pandas",
@@ -26,6 +25,8 @@ dependencies = [
     "wheel",
     "xformers>=0.0.22",
     "protobuf>=6.30.2",
+    "openai>=1.93.0",
+    "pydantic-settings>=2.10.1",
 ]
 requires-python = ">=3.12"
 description = "Expand your vocabulary with wordsea!"

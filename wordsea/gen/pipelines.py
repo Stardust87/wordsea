@@ -5,7 +5,7 @@ import torch
 from diffusers import DiffusionPipeline
 from transformers import T5EncoderModel
 
-from wordsea.constants import ImageModel
+from wordsea.config import ImageModel
 
 
 def flush() -> None:
