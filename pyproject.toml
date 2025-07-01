@@ -27,6 +27,8 @@ dependencies = [
     "protobuf>=6.30.2",
     "openai>=1.93.0",
     "pydantic-settings>=2.10.1",
+    "hf-transfer>=0.1.9",
+    "bitsandbytes>=0.46.0",
 ]
 requires-python = ">=3.12"
 description = "Expand your vocabulary with wordsea!"
@@ -39,6 +41,19 @@ dev = [
     "tox-uv>=1.26.1",
     "types-requests>=2.32.4.20250611",
 ]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+    { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
 
 [project.scripts]
 wordsea = "wordsea:main"

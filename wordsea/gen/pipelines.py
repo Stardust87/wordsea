@@ -1,8 +1,9 @@
 import gc
 
-import diffusers
 import torch
-from diffusers import DiffusionPipeline
+from diffusers import AutoModel, DiffusionPipeline, FluxPipeline
+from diffusers import BitsAndBytesConfig as DiffusersBitsAndBytesConfig
+from transformers import BitsAndBytesConfig as TransformersBitsAndBytesConfig
 from transformers import T5EncoderModel
 
 from wordsea.config import ImageModel
@@ -13,71 +14,33 @@ def flush() -> None:
     torch.cuda.empty_cache()
 
 
-class LowMemoryFluxPipeline:
-    def __init__(self) -> None:
-        self.t5_encoder = T5EncoderModel.from_pretrained(
-            "black-forest-labs/FLUX.1-schnell",
-            subfolder="text_encoder_2",
-            revision="refs/pr/7",
-            torch_dtype=torch.bfloat16,
-        )
-        self.text_encoder = diffusers.DiffusionPipeline.from_pretrained(
-            "black-forest-labs/FLUX.1-schnell",
-            text_encoder_2=self.t5_encoder,
-            transformer=None,
-            vae=None,
-            revision="refs/pr/7",
-        )
-        self.pipeline = diffusers.DiffusionPipeline.from_pretrained(
-            "black-forest-labs/FLUX.1-schnell",
-            torch_dtype=torch.bfloat16,
-            revision="refs/pr/1",
-            text_encoder_2=None,
-            text_encoder=None,
-        )
-        self.pipeline.enable_model_cpu_offload()
-        self.pipeline.set_progress_bar_config(disable=True)
+def get_flux_8bit_pipeline(repo: str) -> FluxPipeline:
+    torch._dynamo.config.capture_dynamic_output_shape_ops = True
 
-    def encode_text(self, prompt: str) -> tuple[torch.Tensor, torch.Tensor]:
-        (
-            prompt_embeds,
-            pooled_prompt_embeds,
-            _,
-        ) = self.text_encoder.encode_prompt(
-            prompt=prompt, prompt_2=None, max_sequence_length=256
-        )
+    text_encoder_2_8bit = T5EncoderModel.from_pretrained(
+        repo,
+        subfolder="text_encoder_2",
+        quantization_config=TransformersBitsAndBytesConfig(load_in_8bit=True),
+        torch_dtype=torch.bfloat16,
+    )
 
-        return prompt_embeds, pooled_prompt_embeds
+    transformer_8bit = AutoModel.from_pretrained(
+        repo,
+        subfolder="transformer",
+        quantization_config=DiffusersBitsAndBytesConfig(load_in_8bit=True),
+        torch_dtype=torch.bfloat16,
+    )
 
-    @torch.inference_mode()
-    def inference(
-        self,
-        prompt,
-        num_inference_steps=5,
-        guidance_scale=0.0,
-        num_images_per_prompt=1,
-        width=768,
-        height=768,
-        generator=None,
-    ):
-        self.text_encoder.to("cuda")
-        prompt_embeds, pooled_prompt_embeds = self.encode_text(prompt)
-        self.text_encoder.to("cpu")
-        flush()
-        output = self.pipeline(
-            prompt_embeds=prompt_embeds.bfloat16(),
-            pooled_prompt_embeds=pooled_prompt_embeds.bfloat16(),
-            width=width,
-            height=height,
-            guidance_scale=guidance_scale,
-            num_images_per_prompt=num_images_per_prompt,
-            num_inference_steps=num_inference_steps,
-            generator=generator,
-        )
-        return output
+    # transformer_8bit.compile(mode="max-autotune", fullgraph=True)
 
-    def __call__(self, *args, **kwargs):
-        return self.inference(*args, **kwargs)
+    pipe = FluxPipeline.from_pretrained(
+        repo,
+        transformer=transformer_8bit,
+        text_encoder_2=text_encoder_2_8bit,
+        torch_dtype=torch.bfloat16,
+    )
+
+    return pipe
 
 
 def get_pipeline(model: ImageModel) -> DiffusionPipeline:
@@ -90,13 +53,17 @@ def get_pipeline(model: ImageModel) -> DiffusionPipeline:
                 add_watermarker=False,
                 variant="fp16",
             )
+            pipe.to("cuda")
         case ImageModel.FLUX_SCHNELL:
-            pipe = LowMemoryFluxPipeline()
+            pipe = get_flux_8bit_pipeline("black-forest-labs/FLUX.1-schnell")
+        case ImageModel.FLUX_DEV:
+            pipe = get_flux_8bit_pipeline("black-forest-labs/FLUX.1-dev")
         case _:
             raise ValueError(f"model not supported: {model}")
 
-    if model != ImageModel.FLUX_SCHNELL:
-        pipe.set_progress_bar_config(disable=True)
-        pipe.to("cuda")
+    pipe.vae.enable_slicing()
+    pipe.vae.enable_tiling()
+    pipe.set_progress_bar_config(disable=True)
+    pipe.to("cuda")
 
     return pipe

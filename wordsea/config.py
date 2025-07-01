@@ -7,6 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class ImageModel(StrEnum):
     FLUX_SCHNELL = "flux-schnell"
+    FLUX_DEV = "flux-dev"
     PLAYGROUND = "playground"
 
 
