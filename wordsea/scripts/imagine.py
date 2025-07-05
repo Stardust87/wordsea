@@ -19,7 +19,7 @@ PARAMETERS = {
         "guidance_scale": 0.0,
     },
     "flux-dev": {
-        "num_inference_steps": 42,
+        "num_inference_steps": 50,
         "guidance_scale": 3.5,
     },
 }

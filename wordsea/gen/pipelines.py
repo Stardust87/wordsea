@@ -1,10 +1,8 @@
 import gc
 
 import torch
-from diffusers import AutoModel, DiffusionPipeline, FluxPipeline
-from diffusers import BitsAndBytesConfig as DiffusersBitsAndBytesConfig
-from transformers import BitsAndBytesConfig as TransformersBitsAndBytesConfig
-from transformers import T5EncoderModel
+from diffusers import DiffusionPipeline, FluxPipeline
+from torchao.quantization import float8_dynamic_activation_float8_weight, quantize_
 
 from wordsea.config import ImageModel
 
@@ -14,30 +12,36 @@ def flush() -> None:
     torch.cuda.empty_cache()
 
 
-def get_flux_8bit_pipeline(repo: str) -> FluxPipeline:
-    torch._dynamo.config.capture_dynamic_output_shape_ops = True
-
-    text_encoder_2_8bit = T5EncoderModel.from_pretrained(
-        repo,
-        subfolder="text_encoder_2",
-        quantization_config=TransformersBitsAndBytesConfig(load_in_8bit=True),
-        torch_dtype=torch.bfloat16,
-    )
-
-    transformer_8bit = AutoModel.from_pretrained(
-        repo,
-        subfolder="transformer",
-        quantization_config=DiffusersBitsAndBytesConfig(load_in_8bit=True),
-        torch_dtype=torch.bfloat16,
-    )
-
-    # transformer_8bit.compile(mode="max-autotune", fullgraph=True)
-
+def get_fast_flux_pipeline(repo: str) -> FluxPipeline:
     pipe = FluxPipeline.from_pretrained(
         repo,
-        transformer=transformer_8bit,
-        text_encoder_2=text_encoder_2_8bit,
         torch_dtype=torch.bfloat16,
+    )
+
+    pipe.vae.to(memory_format=torch.channels_last)
+
+    pipe.transformer.fuse_qkv_projections()
+    pipe.vae.fuse_qkv_projections()
+
+    quantize_(
+        pipe.transformer,
+        float8_dynamic_activation_float8_weight(),
+    )
+
+    pipe.to("cuda")
+
+    config = torch._inductor.config
+    config.conv_1x1_as_mm = True  # treat 1x1 convolutions as matrix muls
+    # adjust autotuning algorithm
+    config.coordinate_descent_tuning = True
+    config.coordinate_descent_check_all_directions = True
+    config.epilogue_fusion = False  # do not fuse pointwise ops into matmuls
+
+    pipe.transformer = torch.compile(
+        pipe.transformer, mode="reduce-overhead", fullgraph=True
+    )
+    pipe.vae.decode = torch.compile(
+        pipe.vae.decode, mode="max-autotune", fullgraph=True
     )
 
     return pipe
@@ -55,9 +59,9 @@ def get_pipeline(model: ImageModel) -> DiffusionPipeline:
             )
             pipe.to("cuda")
         case ImageModel.FLUX_SCHNELL:
-            pipe = get_flux_8bit_pipeline("black-forest-labs/FLUX.1-schnell")
+            pipe = get_fast_flux_pipeline("black-forest-labs/FLUX.1-schnell")
         case ImageModel.FLUX_DEV:
-            pipe = get_flux_8bit_pipeline("black-forest-labs/FLUX.1-dev")
+            pipe = get_fast_flux_pipeline("black-forest-labs/FLUX.1-dev")
         case _:
             raise ValueError(f"model not supported: {model}")
 
