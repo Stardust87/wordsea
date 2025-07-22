@@ -1,4 +1,4 @@
-import { mnemonics, baseWords } from '$lib/server/database';
+import { mnemonics, getBaseWords } from '$lib/server/database';
 import type { Mnemonic } from '$lib/types/Mnemonic';
 import { loadImage } from '$lib/server/loader';
 
@@ -10,6 +10,7 @@ const random = (words: string[]) => {
 };
 
 export const load = async ({ url }) => {
+	const baseWords = await getBaseWords();
 	const dailyWord = PUBLIC_FRONT_WORD || baseWords[random(baseWords)];
 	const dailyMnemonics = await mnemonics.find({ word: dailyWord }).sort({ $natural: -1 }).toArray();
 

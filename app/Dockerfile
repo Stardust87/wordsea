@@ -16,4 +16,6 @@ RUN --mount=type=cache,target=/app/.npm \
 COPY --chown=1000 --link . .
 RUN chmod +x /app/entrypoint.sh
 
+STOPSIGNAL SIGINT
+
 CMD ["/bin/bash", "-c", "/app/entrypoint.sh"]

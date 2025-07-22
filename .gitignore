@@ -1,7 +1,8 @@
 logs/
 typesense-data/
 *.archive
-
+**/*.prod*
+mongo-data
 .ruff_cache
 .DS_Store
 

@@ -1,10 +1,12 @@
 services:
   mongo:
+    container_name: wordsea-mongo
     image: mongo:latest
     ports:
       - 27017:27017
 
   typesense:
+    container_name: wordsea-typesense
     image: typesense/typesense:0.25.2
     ports:
       - 8108:8108
@@ -16,6 +18,7 @@ services:
     command: '--data-dir /data --api-key=xyz --enable-cors'
 
   app:
+    container_name: wordsea-app
     build:
       context: ./app
       dockerfile: Dockerfile
